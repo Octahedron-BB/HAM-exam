@@ -64,6 +64,7 @@
               class="option-btn {{item.state}}"
               data-key="{{item.key}}"
               bindtap="onOptionTap"
+              bindlongpress="onOptionLongPress"
             >
               <view class="option-key">{{item.key}}</view>
               <view class="option-text">{{item.text}}</view>

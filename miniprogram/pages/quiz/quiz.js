@@ -70,6 +70,7 @@ Page({
 
     this.sessionResults = {};
     this.examDraft = {};
+    this.eliminated = {};
     this.shuffled = {};
     this.currentQ = null;
     this._timerId = null;
@@ -201,9 +202,10 @@ Page({
     return this.shuffled[id];
   },
 
-  decorate(q, selectedStr, mode) {
+  decorate(q, selectedStr, mode, elimMap) {
     const selected = String(selectedStr || '').split('');
     const answer = String(q.answer || '').split('');
+    const elim = elimMap || {};
     return Object.keys(q.options).sort().map((key) => {
       let state = '';
       if (mode === 'graded') {
@@ -211,8 +213,11 @@ Page({
         else if (selected.indexOf(key) >= 0) state = 'wrong';
       } else if (mode === 'picked') {
         if (selected.indexOf(key) >= 0) state = 'picked';
+        else if (elim[key]) state = 'eliminated';
       } else if (mode === 'answer') {
         if (answer.indexOf(key) >= 0) state = 'correct';
+      } else if (elim[key]) {
+        state = 'eliminated';
       }
       return { key, text: q.options[key], state };
     });
@@ -229,6 +234,7 @@ Page({
     const isExam = this.mode === 'exam';
     const isMemorize = this.mode === 'memorize';
     const session = this.sessionResults[id];
+    const elimMap = this.eliminated[id] || {};
 
     let submitted = false;
     let isCorrect = false;
@@ -238,7 +244,7 @@ Page({
 
     if (isExam) {
       const picked = this.examDraft[id] || '';
-      options = this.decorate(q, picked, picked ? 'picked' : '');
+      options = this.decorate(q, picked, picked ? 'picked' : '', elimMap);
     } else if (isMemorize) {
       submitted = true;
       answerText = q.answer;
@@ -250,7 +256,7 @@ Page({
       answerText = q.answer;
       options = this.decorate(q, session.selected, 'graded');
     } else {
-      options = this.decorate(q, '', '');
+      options = this.decorate(q, '', '', elimMap);
     }
 
     const noteText = store.getNote(q.id);
@@ -285,10 +291,48 @@ Page({
     }
   },
 
+  onOptionLongPress(e) {
+    if (this.data.isMemorize || this.data.submitted) return;
+    const key = e.currentTarget.dataset.key;
+    const q = this.currentQ;
+    if (!q) return;
+
+    if (!this.eliminated[q.id]) this.eliminated[q.id] = {};
+    const elimMap = this.eliminated[q.id];
+    const nextElim = !elimMap[key];
+    if (nextElim) elimMap[key] = true;
+    else delete elimMap[key];
+
+    if (this.mode === 'exam') {
+      if (nextElim && this.examDraft[q.id] && this.examDraft[q.id].indexOf(key) >= 0) {
+        this.examDraft[q.id] = this.examDraft[q.id].split('').filter((k) => k !== key).join('');
+      }
+      const picked = this.examDraft[q.id] || '';
+      this.setData({ options: this.decorate(q, picked, picked ? 'picked' : '', elimMap) });
+      return;
+    }
+
+    if (nextElim && q.type === 'multi') {
+      const pos = this.selected.indexOf(key);
+      if (pos >= 0) this.selected.splice(pos, 1);
+    }
+    const selStr = this.selected.join('');
+    this.setData({
+      options: this.decorate(q, selStr, selStr ? 'picked' : '', elimMap),
+      canSubmitMulti: this.selected.length > 0
+    });
+  },
+
   onOptionTap(e) {
     if (this.data.isMemorize) return;
     const key = e.currentTarget.dataset.key;
     const q = this.currentQ;
+    const elimMap = this.eliminated[q.id] || {};
+
+    if (!this.data.submitted && elimMap[key]) {
+      wx.showToast({ title: '已排除该选项，长按可恢复', icon: 'none' });
+      return;
+    }
 
     if (this.mode === 'exam') {
       if (q.type === 'single') {
@@ -301,7 +345,7 @@ Page({
         this.examDraft[q.id] = cur.sort().join('');
       }
       const picked = this.examDraft[q.id] || '';
-      this.setData({ options: this.decorate(q, picked, picked ? 'picked' : '') });
+      this.setData({ options: this.decorate(q, picked, picked ? 'picked' : '', elimMap) });
       return;
     }
 
@@ -315,7 +359,7 @@ Page({
       this.selected = sel;
 
       this.setData({
-        options: this.decorate(q, sel.join(''), 'picked'),
+        options: this.decorate(q, sel.join(''), 'picked', elimMap),
         canSubmitMulti: sel.length > 0
       });
       return;

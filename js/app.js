@@ -1060,6 +1060,7 @@
     const isGraded = !isExam && Boolean(prevResult);
     const ansSet = new Set(q.answer.split(''));
     const examPicked = s.examDraft[q.id] || '';
+    const elimMap = (s.eliminated && s.eliminated[q.id]) || {};
 
     if (!isGraded && !isExam) {
       s.multiDraft = new Set();
@@ -1072,6 +1073,7 @@
       let cls = 'option-btn';
       if (isExam) {
         if (examPicked.includes(k)) cls += ' selected';
+        else if (elimMap[k]) cls += ' eliminated';
       } else if (isMemorize) {
         if (ansSet.has(k)) cls += ' correct';
       } else if (isGraded) {
@@ -1080,6 +1082,8 @@
         else if (userPicked && !ansSet.has(k)) cls += ' wrong';
       } else if (q.type === 'multi' && s.multiDraft.has(k)) {
         cls += ' selected';
+      } else if (elimMap[k]) {
+        cls += ' eliminated';
       }
 
       return `
@@ -1178,12 +1182,68 @@
       showToast(on ? '已加入收藏集' : '已取消收藏');
     });
 
+    let longPressTimer = null;
+    let suppressNextClick = false;
+
+    const toggleEliminateOption = (opt) => {
+      const q = getCurrentQuestion();
+      if (!q || state.session.mode === 'memorize' || (state.session.mode !== 'exam' && state.session.results[q.id])) return;
+      if (!state.session.eliminated) state.session.eliminated = {};
+      if (!state.session.eliminated[q.id]) state.session.eliminated[q.id] = {};
+      const elimMap = state.session.eliminated[q.id];
+      const nextElim = !elimMap[opt];
+      if (nextElim) elimMap[opt] = true;
+      else delete elimMap[opt];
+
+      if (nextElim) {
+        if (state.session.mode === 'exam' && state.session.examDraft[q.id]) {
+          state.session.examDraft[q.id] = state.session.examDraft[q.id].split('').filter((k) => k !== opt).join('');
+        } else if (q.type === 'multi') {
+          state.session.multiDraft.delete(opt);
+        }
+      }
+      renderQuestion();
+    };
+
+    $('#q-options').addEventListener('pointerdown', (e) => {
+      const btn = e.target.closest('.option-btn');
+      if (!btn || btn.disabled) return;
+      clearTimeout(longPressTimer);
+      longPressTimer = setTimeout(() => {
+        suppressNextClick = true;
+        toggleEliminateOption(btn.dataset.opt);
+      }, 450);
+    });
+
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) => {
+      $('#q-options').addEventListener(evt, () => {
+        clearTimeout(longPressTimer);
+      });
+    });
+
+    $('#q-options').addEventListener('contextmenu', (e) => {
+      const btn = e.target.closest('.option-btn');
+      if (!btn || btn.disabled) return;
+      e.preventDefault();
+      toggleEliminateOption(btn.dataset.opt);
+    });
+
     $('#q-options').addEventListener('click', (e) => {
+      if (suppressNextClick) {
+        suppressNextClick = false;
+        return;
+      }
       const btn = e.target.closest('.option-btn');
       if (!btn || btn.disabled) return;
       const opt = btn.dataset.opt;
       const q = getCurrentQuestion();
       if (!q) return;
+
+      const elimMap = (state.session.eliminated && state.session.eliminated[q.id]) || {};
+      if (elimMap[opt]) {
+        showToast('已排除该选项，长按可恢复');
+        return;
+      }
 
       if (state.session.mode === 'exam') {
         if (q.type === 'single') {

@@ -232,6 +232,18 @@ page {
   color: #FFFFFF;
 }
 
+/* 长按排除 */
+.option-btn.eliminated {
+  opacity: 0.48;
+  background: #F5F7F9;
+  border-style: dashed;
+}
+
+.option-btn.eliminated .option-text {
+  text-decoration: line-through;
+  color: #9CA3AF;
+}
+
 .multi-submit {
   margin-top: 26rpx;
   width: 100%;

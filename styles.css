@@ -1152,6 +1152,17 @@ code {
   color: #FFFFFF;
 }
 
+.option-btn.eliminated {
+  opacity: 0.48;
+  background: var(--surface-muted);
+  border-style: dashed;
+}
+
+.option-btn.eliminated span:last-child {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
 .q-multi-submit {
   margin-top: 14px;
 }
