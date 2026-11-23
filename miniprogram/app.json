@@ -8,7 +8,7 @@
     "pages/login/login"
   ],
   "window": {
-    "navigationBarTitleText": "HAM题库",
+    "navigationBarTitleText": "HAM刷题",
     "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#F5F7F9",
