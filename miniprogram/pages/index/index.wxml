@@ -11,7 +11,7 @@
     <view wx:else class="user-avatar user-avatar-empty">CQ</view>
 
     <view class="user-meta">
-      <view class="user-name">{{loggedIn ? profile.nickName : 'HAM 题库'}}</view>
+      <view class="user-name">{{loggedIn ? profile.nickName : 'HAM刷题'}}</view>
       <view class="user-sub">{{loggedIn ? 'CRAC A/B/C 类 · 点击修改资料' : '点击登录，记录属于你的刷题进度'}}</view>
     </view>
 
@@ -171,5 +171,5 @@
     </view>
   </view>
 
-  <view class="footer-tip">HAM 题库 · 业余无线电操作技术能力刷题系统</view>
+  <view class="footer-tip">HAM刷题 · 业余无线电操作技术能力刷题系统</view>
 </view>

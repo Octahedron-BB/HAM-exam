@@ -2,7 +2,7 @@
   <!-- 品牌区 -->
   <view class="brand">
     <view class="brand-badge">CQ</view>
-    <view class="brand-title">HAM 题库</view>
+    <view class="brand-title">HAM刷题</view>
     <view class="brand-sub">中国业余无线电 A / B / C 类操作证刷题</view>
   </view>
 
@@ -38,7 +38,7 @@
       class="btn-primary submit-btn"
       bindtap="onSubmit"
       disabled="{{!canSubmit || submitting}}"
-    >{{isEdit ? '保存资料' : '进入 HAM 题库'}}</button>
+    >{{isEdit ? '保存资料' : '进入 HAM刷题'}}</button>
 
     <view wx:if="{{!isEdit}}" class="skip-row" bindtap="onSkip">暂不设置，直接刷题</view>
   </view>
