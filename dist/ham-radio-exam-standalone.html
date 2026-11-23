@@ -1466,6 +1466,7 @@ code {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
+  align-items: end;
 }
 
 .paper-counts-row .text-input {
@@ -1796,8 +1797,8 @@ code {
                 <input id="paper-multi-count" type="number" min="0" max="200" value="5" class="text-input mono-text" />
               </div>
               <div class="config-group">
-                <label class="config-label" for="paper-duration">限时（分钟，0为不限）</label>
-                <input id="paper-duration" type="number" min="0" max="240" value="40" class="text-input mono-text" />
+                <label class="config-label" for="paper-duration">限时(分钟)</label>
+                <input id="paper-duration" type="number" min="0" max="240" value="40" placeholder="0为不限" class="text-input mono-text" />
               </div>
             </div>
 
