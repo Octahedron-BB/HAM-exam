@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0F766E" />
+  <meta name="description" content="中国业余无线电台操作技术能力验证考试刷题系统：支持A/B/C类题库顺序随机刷题、单选多选题型、背题模式、考点专项、错题集、收藏集与随手笔记。" />
+  <title>CQ · 业余无线电刷题系统</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <!-- Top Navigation Bar (Main Tabs) -->
+    <header id="main-header" class="top-header">
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-badge">CQ</span>
+          <div class="brand-text">
+            <h1>业余无线电题库</h1>
+            <span class="brand-sub">CRAC A / B / C 类操作技术能力</span>
+          </div>
+        </div>
+        <nav class="desktop-nav" aria-label="主导航">
+          <button class="nav-btn active" data-tab="practice">题库练习</button>
+          <button class="nav-btn" data-tab="syllabus">考点专项</button>
+          <button class="nav-btn" data-tab="library">错题收藏</button>
+          <button class="nav-btn" data-tab="settings">统计设置</button>
+        </nav>
+        <div class="header-actions">
+          <button id="theme-toggle-btn" class="icon-btn" title="切换深色模式" aria-label="切换深色模式">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Views -->
+    <main id="main-content" class="main-container">
+      <!-- TAB 1: 题库练习 -->
+      <section id="tab-practice" class="tab-panel active">
+        <div class="panel-grid">
+          <div class="card hero-card">
+            <div class="card-header-row">
+              <div>
+                <h2 class="section-title">选择题库级别</h2>
+                <p class="section-desc">题库数据源自官方 A / B / C 类及总题库</p>
+              </div>
+              <span id="current-level-pill" class="mono-pill">A类 · 683题</span>
+            </div>
+
+            <div class="level-grid" id="level-selector">
+              <button class="level-card active" data-level="A">
+                <div class="level-top">
+                  <span class="level-code">A类</span>
+                  <span class="level-count">683 题</span>
+                </div>
+                <div class="level-name">入门级 · 30W以下V/U段</div>
+                <div class="mini-progress"><div class="mini-progress-fill" data-level-bar="A" style="width:0%"></div></div>
+              </button>
+              <button class="level-card" data-level="B">
+                <div class="level-top">
+                  <span class="level-code">B类</span>
+                  <span class="level-count">1143 题</span>
+                </div>
+                <div class="level-name">进阶级 · 全频段短波</div>
+                <div class="mini-progress"><div class="mini-progress-fill" data-level-bar="B" style="width:0%"></div></div>
+              </button>
+              <button class="level-card" data-level="C">
+                <div class="level-top">
+                  <span class="level-code">C类</span>
+                  <span class="level-count">1282 题</span>
+                </div>
+                <div class="level-name">高级 · 大功率发射</div>
+                <div class="mini-progress"><div class="mini-progress-fill" data-level-bar="C" style="width:0%"></div></div>
+              </button>
+              <button class="level-card" data-level="ALL">
+                <div class="level-top">
+                  <span class="level-code">总题库</span>
+                  <span class="level-count">1375 题</span>
+                </div>
+                <div class="level-name">全量合并题库</div>
+                <div class="mini-progress"><div class="mini-progress-fill" data-level-bar="ALL" style="width:0%"></div></div>
+              </button>
+            </div>
+          </div>
+
+          <div class="card config-card">
+            <h2 class="section-title">刷题参数</h2>
+            <div class="config-group">
+              <label class="config-label">出题顺序</label>
+              <div class="segmented" id="order-selector">
+                <button class="seg-btn active" data-order="seq">顺序刷题</button>
+                <button class="seg-btn" data-order="random">随机刷题</button>
+              </div>
+            </div>
+
+            <div class="config-group">
+              <label class="config-label">题型筛选</label>
+              <div class="segmented" id="qtype-selector">
+                <button class="seg-btn active" data-qtype="all">全部题型</button>
+                <button class="seg-btn" data-qtype="single">单选题</button>
+                <button class="seg-btn" data-qtype="multi">多选题</button>
+              </div>
+            </div>
+
+            <div id="resume-hint" class="resume-hint">
+              <span class="dot-indicator"></span>
+              <span id="resume-hint-text">当前筛选共 683 题</span>
+            </div>
+
+            <div class="cta-row">
+              <button id="start-quiz-btn" class="btn btn-primary btn-lg">
+                开始做题
+              </button>
+              <button id="start-memorize-btn" class="btn btn-secondary btn-lg">
+                背题模式（显示答案）
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Search Card -->
+        <div class="card search-card">
+          <div class="card-header-row">
+            <h2 class="section-title">快速搜题</h2>
+            <span class="section-desc">支持题干关键词、旧题号（如 LK0497）或题号（MC1-0003）</span>
+          </div>
+          <div class="search-bar-row">
+            <input id="quick-search-input" type="search" class="text-input" placeholder="输入关键词搜索题目，例如：呼号、驻波比、MC1-0003..." />
+            <button id="quick-search-btn" class="btn btn-primary">搜索</button>
+          </div>
+          <div id="quick-search-results" class="search-results hidden"></div>
+        </div>
+      </section>
+
+      <!-- TAB 2: 考点专项 -->
+      <section id="tab-syllabus" class="tab-panel">
+        <div class="card">
+          <div class="card-header-row wrap-row">
+            <div>
+              <h2 class="section-title">按考点分类刷题</h2>
+              <p class="section-desc">依据题库 [P] 考纲编号自动归类，支持整章或细分考点专项突破</p>
+            </div>
+            <div class="segmented compact" id="syllabus-level-filter">
+              <button class="seg-btn active" data-slevel="A">A类</button>
+              <button class="seg-btn" data-slevel="B">B类</button>
+              <button class="seg-btn" data-slevel="C">C类</button>
+              <button class="seg-btn" data-slevel="ALL">总题库</button>
+            </div>
+          </div>
+          <div id="syllabus-tree" class="syllabus-tree"></div>
+        </div>
+      </section>
+
+      <!-- TAB 3: 错题收藏与笔记 -->
+      <section id="tab-library" class="tab-panel">
+        <div class="card">
+          <div class="lib-header">
+            <div class="segmented" id="library-subtabs">
+              <button class="seg-btn active" data-lib="wrong">错题集 (<span id="lib-wrong-count">0</span>)</button>
+              <button class="seg-btn" data-lib="fav">收藏集 (<span id="lib-fav-count">0</span>)</button>
+              <button class="seg-btn" data-lib="notes">我的笔记 (<span id="lib-note-count">0</span>)</button>
+            </div>
+            <div id="library-actions" class="lib-actions"></div>
+          </div>
+          <div id="library-list" class="library-list"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: 统计与设置 -->
+      <section id="tab-settings" class="tab-panel">
+        <div class="panel-grid">
+          <div class="card">
+            <h2 class="section-title">学习统计</h2>
+            <div class="stats-grid" id="stats-overview">
+              <div class="stat-box">
+                <span class="stat-val" id="stat-total-done">0</span>
+                <span class="stat-lbl">已刷题目</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-val" id="stat-accuracy">0%</span>
+                <span class="stat-lbl">综合正确率</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-val" id="stat-wrong">0</span>
+                <span class="stat-lbl">当前错题</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-val" id="stat-fav">0</span>
+                <span class="stat-lbl">收藏题目</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">偏好设置</h2>
+            <div class="setting-row">
+              <div>
+                <div class="setting-title">做对后自动移出错题集</div>
+                <div class="setting-desc">在任意模式做对错题时自动将其从错题本移除</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-auto-remove-wrong" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-title">深色模式</div>
+                <div class="setting-desc">适合夜间学习与 OLED 移动屏幕</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-dark-mode" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">数据备份与小程序兼容说明</h2>
+            <p class="section-desc" style="margin-bottom: 12px;">
+              所有存储均通过 <code>js/storage.js</code> 适配层隔离，题库与核心引擎（<code>js/engine.js</code>）无 DOM 依赖，可平滑迁移至微信小程序 / UniApp / Taro。
+            </p>
+            <div class="btn-wrap-row">
+              <button id="export-data-btn" class="btn btn-secondary">导出学习记录 (JSON)</button>
+              <label class="btn btn-secondary file-btn">
+                导入学习记录
+                <input type="file" id="import-data-input" accept=".json,application/json" hidden />
+              </label>
+              <button id="reset-progress-btn" class="btn btn-danger-outline">重置刷题进度</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Mobile Bottom Tab Bar (Mini-Program Style) -->
+    <nav id="mobile-tabbar" class="mobile-tabbar" aria-label="底部导航">
+      <button class="tabbar-item active" data-tab="practice">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>刷题</span>
+      </button>
+      <button class="tabbar-item" data-tab="syllabus">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <span>考点</span>
+      </button>
+      <button class="tabbar-item" data-tab="library">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>错题收藏</span>
+      </button>
+      <button class="tabbar-item" data-tab="settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span>设置</span>
+      </button>
+    </nav>
+
+    <!-- QUIZ / MEMORIZE VIEW (Full-Screen Overlay View) -->
+    <div id="quiz-view" class="quiz-view hidden">
+      <header class="quiz-header">
+        <button id="quiz-back-btn" class="icon-text-btn" aria-label="返回">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>返回</span>
+        </button>
+        <div class="quiz-title-wrap">
+          <span id="quiz-session-title" class="quiz-session-title">A类 · 顺序刷题</span>
+          <span id="quiz-counter" class="quiz-counter mono-text">1 / 683</span>
+        </div>
+        <div class="mode-pill" id="quiz-mode-toggle" role="group" aria-label="刷题模式">
+          <button class="mode-pill-btn active" data-qmode="practice">做题</button>
+          <button class="mode-pill-btn" data-qmode="memorize">背题</button>
+        </div>
+      </header>
+
+      <div class="quiz-progress-bar">
+        <div id="quiz-progress-fill" class="quiz-progress-fill" style="width:0%"></div>
+      </div>
+
+      <main class="quiz-body">
+        <article class="question-card card">
+          <div class="q-meta-row">
+            <div class="q-badges">
+              <span id="q-type-badge" class="badge badge-type">单选题</span>
+              <span id="q-levels-badge" class="badge badge-level">A B C</span>
+              <span id="q-syllabus-badge" class="badge badge-syllabus">1.1.1</span>
+              <span id="q-id-badge" class="mono-id">MC1-0001</span>
+            </div>
+            <button id="q-fav-btn" class="fav-btn" title="收藏此题" aria-label="收藏此题">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </button>
+          </div>
+
+          <h2 id="q-stem" class="q-stem">题目加载中...</h2>
+
+          <!-- Optional Figure Container -->
+          <div id="q-figure-box" class="q-figure-box hidden"></div>
+
+          <!-- Options -->
+          <div id="q-options" class="q-options"></div>
+
+          <!-- Multi-choice Submit Button -->
+          <div id="q-multi-submit-wrap" class="q-multi-submit hidden">
+            <button id="q-multi-submit-btn" class="btn btn-primary btn-block">确认提交多选答案</button>
+          </div>
+
+          <!-- Result / Answer Feedback Banner -->
+          <div id="q-feedback" class="q-feedback hidden"></div>
+        </article>
+
+        <!-- Instant Note Card -->
+        <section class="note-card card">
+          <div class="note-header">
+            <div class="note-title-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              <span>随手笔记</span>
+              <span id="note-saved-badge" class="note-saved-badge hidden">已保存</span>
+            </div>
+            <button id="note-save-btn" class="btn btn-sm btn-secondary">保存笔记</button>
+          </div>
+          <textarea id="q-note-input" class="note-textarea" rows="3" placeholder="记录这道题的记忆口诀、易错点或法规条文...（支持失去焦点自动保存）"></textarea>
+        </section>
+      </main>
+
+      <footer class="quiz-footer">
+        <button id="quiz-prev-btn" class="btn btn-secondary">上一题</button>
+        <button id="quiz-sheet-btn" class="btn btn-ghost">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          <span>答题卡</span>
+        </button>
+        <button id="quiz-next-btn" class="btn btn-primary">下一题</button>
+      </footer>
+    </div>
+
+    <!-- Question Sheet Modal / Drawer -->
+    <div id="sheet-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="答题卡">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <h3>答题卡</h3>
+          <button id="sheet-close-btn" class="icon-btn" aria-label="关闭答题卡">✕</button>
+        </div>
+        <div class="sheet-legend">
+          <span><i class="legend-dot current"></i>当前</span>
+          <span><i class="legend-dot correct"></i>正确</span>
+          <span><i class="legend-dot wrong"></i>错误</span>
+          <span><i class="legend-dot todo"></i>未做</span>
+        </div>
+        <div id="sheet-grid" class="sheet-grid"></div>
+      </div>
+    </div>
+
+    <!-- Custom Confirm Modal (Mini-Program Safe, no window.confirm) -->
+    <div id="confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="modal-dialog">
+        <h3 id="confirm-title">确认操作</h3>
+        <p id="confirm-message"></p>
+        <div class="modal-actions">
+          <button id="confirm-cancel-btn" class="btn btn-secondary">取消</button>
+          <button id="confirm-ok-btn" class="btn btn-primary">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
