@@ -107,14 +107,24 @@ ok(store1.settings.level === 'A', '默认级别为 A 类');
 
 // ---------------------------------------------------------------- 4. 首页
 console.log('\n[4] 首页');
+// 清掉题库相关模块缓存，才能验证首页到底加载了什么
+const cleared = [];
+for (const k of Object.keys(require.cache)) {
+  if (/[\\/](data|utils)[\\/](questions|counts|syllabus)\.js$/.test(k)) {
+    cleared.push(path.basename(k));
+    delete require.cache[k];
+  }
+}
+console.log('  （已清理模块缓存: ' + (cleared.join(', ') || '无') + '）');
 const indexPage = loadPage('pages/index/index.js');
-readLog.length = 0;          // 清空记录，只看首页读了什么
 indexPage.onLoad();
 // 首页把题库解析放在 setTimeout 里，等它跑完
 setTimeout(() => {
-  ok(readLog.indexOf('counts.json') >= 0, '首页读取了 counts.json');
-  ok(readLog.indexOf('questions.json') < 0,
-    '首页未解析 600KB 题库（只读了 ' + (readLog.join(', ') || '无') + '）');
+  const cacheKeys = Object.keys(require.cache);
+  const hasDataQuestions = cacheKeys.some((k) => /[\\/]data[\\/]questions\.js$/.test(k));
+  const hasDataCounts = cacheKeys.some((k) => /[\\/]data[\\/]counts\.js$/.test(k));
+  ok(hasDataCounts, '首页加载了 data/counts.js');
+  ok(!hasDataQuestions, '首页未加载 data/questions.js（598KB 大文件）');
 
   indexPage.onShow();
   ok(indexPage.data.counts.ALL === 1375, '首页题量统计已填充', JSON.stringify(indexPage.data.counts));

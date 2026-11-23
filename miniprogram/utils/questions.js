@@ -1,72 +1,42 @@
 /**
  * 题库数据加载（小程序端）
  *
- * 小程序不支持 fetch 读本地文件，也不能 require JSON，
- * 这里用 wx.getFileSystemManager().readFileSync 读取包内文件。
+ * 为什么用 require 而不是 readFileSync：
+ *   微信开发者工具打包时把 .json 当配置文件，data/*.json 不会进代码包
+ *   （实测 598KB 题库贡献 0 字节）。题库因此以 .js 模块形式存在，
+ *   由 tools/sync-bank.py 生成。
  *
- * 两个层次：
- *   - loadCounts() 只读 data/counts.json（几百字节），首页专用，冷启动不解析 600KB 题库
- *   - load()       读完整题库（约 600KB），只有进刷题页才调用
+ * 分层：
+ *   - loadCounts() 只 require 几十字节的 counts.js，首页专用
+ *   - load()        require 完整题库（约 598KB），只有进刷题页才调用
  *
- * 首次加载后缓存在内存，后续调用直接复用。
+ * require 有模块缓存，重复调用不会重复解析。
  */
 
 let bankCache = null;
-let countsCache = null;
 
-/**
- * 读包内 JSON。不同基础库/真机对相对路径的处理略有差异，
- * 这里按几种常见写法依次尝试，避免真机上直接抛 File not found。
- */
-function readJson(relPath) {
-  const fs = wx.getFileSystemManager();
-  const candidates = [relPath, './' + relPath, '/' + relPath];
-  let lastErr = null;
-
-  for (let i = 0; i < candidates.length; i += 1) {
-    try {
-      const raw = fs.readFileSync(candidates[i], 'utf8');
-      return JSON.parse(raw);
-    } catch (err) {
-      lastErr = err;
-    }
-  }
-  const msg = (lastErr && lastErr.message) || '未知错误';
-  throw new Error('读取 ' + relPath + ' 失败：' + msg);
-}
-
-/**
- * 完整题库（约 600KB，解析有开销，请勿在首页调用）
- * @returns {{questions: Array, syllabus: Object}}
- */
+/** 完整题库（约 598KB，请勿在首页调用） */
 function load() {
   if (bankCache) return bankCache;
-  const questions = readJson('data/questions.json');
-  const syllabus = readJson('data/syllabus.json');
+  const questions = require('../data/questions.js');
+  const syllabus = require('../data/syllabus.js');
   bankCache = { questions, syllabus };
   return bankCache;
 }
 
-/**
- * 各级别题量（首页专用）。由 tools/sync-bank.py 预生成，
- * 避免首页为了显示四个数字去解析整个题库。
- */
+/** 各级别题量（首页专用，只加载几十字节） */
 function loadCounts() {
-  if (countsCache) return countsCache;
-  countsCache = readJson('data/counts.json');
-  return countsCache;
+  return require('../data/counts.js');
 }
 
-/**
- * 按 id 建索引，便于刷题时 O(1) 取题
- */
+/** 按 id 建索引，便于刷题时 O(1) 取题 */
 function buildIndex(questions) {
   const map = {};
   questions.forEach((q) => { map[q.id] = q; });
   return map;
 }
 
-/** 各级别题量统计（构建期用，运行期请读 counts.json） */
+/** 各级别题量统计（构建期用，运行期请读 counts.js） */
 function countByLevel(questions) {
   const counts = { A: 0, B: 0, C: 0, ALL: questions.length };
   questions.forEach((q) => {

@@ -1,29 +1,40 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-把网页版的题库同步到小程序工程，并生成首页用的题量统计。
+把网页版的题库同步到小程序工程，生成 js 模块与首页题量统计。
 
-小程序的包是独立目录，无法引用上级目录的文件，所以题库需要副本。
-源题库（data/*.json）更新后跑一次本脚本即可。
+为什么生成 .js 而不是 .json：
+  微信开发者工具打包时把 .json 当配置文件处理，项目里的 data/questions.json
+  不会被计入代码包。实测（preview --info-output）：
+    只有代码时            TOTAL = 36,412 字节
+    放入 1MB _probe.bin    TOTAL = 1,084,988 字节（差值正好 1MB）
+  → data/ 目录会被打包，但其中的 .json 被当作配置跳过，598KB 题库贡献 0 字节。
+  因此题库必须以 .js 模块形式存在，用 require 引入。
 
-同时生成 miniprogram/data/counts.json —— 首页只需几百字节就能显示各级题量，
-不必为了四个数字去解析 600KB 题库。
+产物：
+  miniprogram/data/questions.js   module.exports = [...]
+  miniprogram/data/syllabus.js    module.exports = {...}
+  miniprogram/data/counts.js      module.exports = {A,B,C,ALL}
 
 用法：python tools/sync-bank.py
 """
-import hashlib
 import json
 import os
-import shutil
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.join(ROOT, 'data')
 DST_DIR = os.path.join(ROOT, 'miniprogram', 'data')
 
+# 小程序端保留的旧 JSON 文件，避免重复占包体积
+LEGACY = ('questions.json', 'syllabus.json', 'counts.json')
 
-def digest(path):
-    with open(path, 'rb') as f:
-        return hashlib.sha256(f.read()).hexdigest()
+
+def write_js(path, payload):
+    """写成 module.exports，末尾换行保持文件规范"""
+    with open(path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write('module.exports = ')
+        f.write(payload)
+        f.write(';\n')
 
 
 def build_counts(questions):
@@ -39,28 +50,38 @@ def build_counts(questions):
 def main():
     os.makedirs(DST_DIR, exist_ok=True)
 
-    for name in ('questions.json', 'syllabus.json'):
-        src = os.path.join(SRC_DIR, name)
-        dst = os.path.join(DST_DIR, name)
-        if not os.path.isfile(src):
-            print('跳过（源不存在）:', name)
-            continue
-        if os.path.isfile(dst) and digest(src) == digest(dst):
-            print('已一致:', name)
-            continue
-        shutil.copyfile(src, dst)
-        print('已同步:', name, '%.0fKB' % (os.path.getsize(dst) / 1024))
+    for name in LEGACY:
+        p = os.path.join(DST_DIR, name)
+        if os.path.isfile(p):
+            os.remove(p)
+            print('已移除旧文件:', name)
 
-    # 题量统计
-    qpath = os.path.join(DST_DIR, 'questions.json')
-    if os.path.isfile(qpath):
-        with open(qpath, encoding='utf-8') as f:
+    qsrc = os.path.join(SRC_DIR, 'questions.json')
+    if os.path.isfile(qsrc):
+        with open(qsrc, encoding='utf-8') as f:
             questions = json.load(f)
-        counts = build_counts(questions)
-        cpath = os.path.join(DST_DIR, 'counts.json')
-        with open(cpath, 'w', encoding='utf-8', newline='\n') as f:
-            json.dump(counts, f, ensure_ascii=False, separators=(',', ':'))
-        print('已生成: counts.json', counts)
+        payload = json.dumps(questions, ensure_ascii=False, separators=(',', ':'))
+        dst = os.path.join(DST_DIR, 'questions.js')
+        write_js(dst, payload)
+        print('已生成: questions.js  %d 题  %.0fKB'
+              % (len(questions), os.path.getsize(dst) / 1024))
+
+        cpath = os.path.join(DST_DIR, 'counts.js')
+        write_js(cpath, json.dumps(build_counts(questions), separators=(',', ':')))
+        print('已生成: counts.js', build_counts(questions))
+    else:
+        print('跳过（源不存在）:', qsrc)
+
+    ssrc = os.path.join(SRC_DIR, 'syllabus.json')
+    if os.path.isfile(ssrc):
+        with open(ssrc, encoding='utf-8') as f:
+            syllabus = json.load(f)
+        payload = json.dumps(syllabus, ensure_ascii=False, separators=(',', ':'))
+        dst = os.path.join(DST_DIR, 'syllabus.js')
+        write_js(dst, payload)
+        print('已生成: syllabus.js  %.0fKB' % (os.path.getsize(dst) / 1024))
+    else:
+        print('跳过（源不存在）:', ssrc)
 
 
 if __name__ == '__main__':

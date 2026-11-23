@@ -172,36 +172,66 @@ if total > 2 * 1024 * 1024:
     err('主包超过 2MB 限制')
 
 # ---------------------------------------------------------------- 9. 题库一致性
-# 小程序里的题库是网页版的副本，源更新后必须同步，否则两边题目不一致
+# 小程序里的题库是网页版的副本，以 .js 模块形式存在（.json 不会被打包进代码包）。
+# 源更新后必须同步，否则两边题目不一致。
 REPO = os.path.dirname(ROOT)
-for name in ('questions.json', 'syllabus.json'):
-    src = os.path.join(REPO, 'data', name)
-    dst = os.path.join(ROOT, 'data', name)
-    if os.path.isfile(src) and os.path.isfile(dst):
-        if os.path.getsize(src) != os.path.getsize(dst):
-            err('题库副本与源文件大小不一致: %s（运行 python tools/sync-bank.py 同步）' % name)
-        else:
-            with open(src, 'rb') as f1, open(dst, 'rb') as f2:
-                if f1.read() != f2.read():
-                    err('题库副本与源文件内容不一致: %s（运行 python tools/sync-bank.py 同步）' % name)
 
-# counts.json 由 sync-bank.py 根据题库生成，这里反算一遍确认没漂移
-counts_path = os.path.join(ROOT, 'data', 'counts.json')
-q_path = os.path.join(ROOT, 'data', 'questions.json')
-if os.path.isfile(counts_path) and os.path.isfile(q_path):
-    declared = load_json(counts_path, 'counts.json')
-    with open(q_path, encoding='utf-8') as f:
-        bank = json.load(f)
-    actual = {'A': 0, 'B': 0, 'C': 0, 'ALL': len(bank)}
-    for q in bank:
-        for lv in (q.get('levels') or []):
-            if lv in actual:
-                actual[lv] += 1
-    if declared != actual:
-        err('counts.json 与题库不符: 声明 %s / 实际 %s（运行 python tools/sync-bank.py）'
-            % (declared, actual))
+
+def load_js_module_json(js_path):
+    """从 `module.exports = <json>;` 里取出 JSON 部分"""
+    with open(js_path, encoding='utf-8') as f:
+        s = f.read().strip()
+    prefix = 'module.exports = '
+    if not s.startswith(prefix):
+        raise ValueError('不是预期的模块格式: ' + os.path.basename(js_path))
+    body = s[len(prefix):].rstrip()
+    if body.endswith(';'):
+        body = body[:-1]
+    return json.loads(body)
+
+
+for json_name, js_name in (('questions.json', 'questions.js'),
+                           ('syllabus.json', 'syllabus.js')):
+    src = os.path.join(REPO, 'data', json_name)
+    dst = os.path.join(ROOT, 'data', js_name)
+    if not os.path.isfile(src):
+        continue
+    if not os.path.isfile(dst):
+        err('缺少题库模块: %s（运行 python tools/sync-bank.py）' % js_name)
+        continue
+    try:
+        with open(src, encoding='utf-8') as f:
+            expected = json.load(f)
+        actual = load_js_module_json(dst)
+    except Exception as e:
+        err('%s 解析失败: %s' % (js_name, e))
+        continue
+    if expected != actual:
+        err('%s 与源 %s 内容不一致（运行 python tools/sync-bank.py 同步）'
+            % (js_name, json_name))
+
+# counts.js 由 sync-bank.py 根据题库生成，这里反算一遍确认没漂移
+counts_js = os.path.join(ROOT, 'data', 'counts.js')
+q_js = os.path.join(ROOT, 'data', 'questions.js')
+
+if not os.path.isfile(counts_js):
+    err('缺少 data/counts.js，首页无法显示题量（运行 python tools/sync-bank.py）')
+elif not os.path.isfile(q_js):
+    err('缺少 data/questions.js（运行 python tools/sync-bank.py）')
 else:
-    err('缺少 data/counts.json，首页无法显示题量（运行 python tools/sync-bank.py）')
+    try:
+        declared = load_js_module_json(counts_js)
+        bank = load_js_module_json(q_js)
+        actual = {'A': 0, 'B': 0, 'C': 0, 'ALL': len(bank)}
+        for q in bank:
+            for lv in (q.get('levels') or []):
+                if lv in actual:
+                    actual[lv] += 1
+        if declared != actual:
+            err('counts.js 与题库不符: 声明 %s / 实际 %s（运行 python tools/sync-bank.py）'
+                % (declared, actual))
+    except Exception as e:
+        err('counts.js / questions.js 校验失败: %s' % e)
 
 # ---------------------------------------------------------------- 输出
 print()
