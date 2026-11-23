@@ -185,6 +185,24 @@ for name in ('questions.json', 'syllabus.json'):
                 if f1.read() != f2.read():
                     err('题库副本与源文件内容不一致: %s（运行 python tools/sync-bank.py 同步）' % name)
 
+# counts.json 由 sync-bank.py 根据题库生成，这里反算一遍确认没漂移
+counts_path = os.path.join(ROOT, 'data', 'counts.json')
+q_path = os.path.join(ROOT, 'data', 'questions.json')
+if os.path.isfile(counts_path) and os.path.isfile(q_path):
+    declared = load_json(counts_path, 'counts.json')
+    with open(q_path, encoding='utf-8') as f:
+        bank = json.load(f)
+    actual = {'A': 0, 'B': 0, 'C': 0, 'ALL': len(bank)}
+    for q in bank:
+        for lv in (q.get('levels') or []):
+            if lv in actual:
+                actual[lv] += 1
+    if declared != actual:
+        err('counts.json 与题库不符: 声明 %s / 实际 %s（运行 python tools/sync-bank.py）'
+            % (declared, actual))
+else:
+    err('缺少 data/counts.json，首页无法显示题量（运行 python tools/sync-bank.py）')
+
 # ---------------------------------------------------------------- 输出
 print()
 for w in warnings:

@@ -15,6 +15,7 @@ const store = new Map();   // 模拟 wx storage
 
 // ---------------------------------------------------------------- wx mock
 const toasts = [];
+const readLog = [];   // 记录读过的文件，用于验证首页没有解析整个题库
 global.wx = {
   getStorageSync(key) {
     return store.has(key) ? store.get(key) : '';
@@ -29,6 +30,7 @@ global.wx = {
     return {
       readFileSync(p) {
         const abs = path.isAbsolute(p) ? p : path.join(MP, p);
+        readLog.push(path.basename(abs));
         return fs.readFileSync(abs, 'utf8');
       }
     };
@@ -61,6 +63,8 @@ function ok(cond, label, extra) {
   if (cond) { pass++; console.log('  ✓ ' + label); }
   else { failures.push(label + (extra ? ' — ' + extra : '')); console.log('  ✗ ' + label + (extra ? ' — ' + extra : '')); }
 }
+
+const tick = () => new Promise((r) => setTimeout(r, 0));
 
 // ---------------------------------------------------------------- 1. 题库
 console.log('\n[1] 题库加载');
@@ -104,9 +108,14 @@ ok(store1.settings.level === 'A', '默认级别为 A 类');
 // ---------------------------------------------------------------- 4. 首页
 console.log('\n[4] 首页');
 const indexPage = loadPage('pages/index/index.js');
+readLog.length = 0;          // 清空记录，只看首页读了什么
 indexPage.onLoad();
 // 首页把题库解析放在 setTimeout 里，等它跑完
 setTimeout(() => {
+  ok(readLog.indexOf('counts.json') >= 0, '首页读取了 counts.json');
+  ok(readLog.indexOf('questions.json') < 0,
+    '首页未解析 600KB 题库（只读了 ' + (readLog.join(', ') || '无') + '）');
+
   indexPage.onShow();
   ok(indexPage.data.counts.ALL === 1375, '首页题量统计已填充', JSON.stringify(indexPage.data.counts));
   ok(indexPage.data.loggedIn === true, '首页显示已登录');
@@ -117,11 +126,14 @@ setTimeout(() => {
   runQuizTests();
 }, 200);
 
-function runQuizTests() {
+async function runQuizTests() {
   // -------------------------------------------------------------- 5. 刷题主链路
   console.log('\n[5] 刷题页（A 类 · 顺序）');
   const quiz = loadPage('pages/quiz/quiz.js');
   quiz.onLoad({ level: 'A', mode: 'seq' });
+  ok(quiz.data.loading === true, '首帧先渲染加载态，不阻塞首屏');
+  await tick();
+  ok(quiz.data.loading === false, '题库解析完成后切到题目');
   ok(quiz.data.total === 683, 'A 类题目 683 条', String(quiz.data.total));
   ok(quiz.data.loading === false, '加载完成');
   ok(Boolean(quiz.data.q && quiz.data.q.text), '第一题已渲染');
@@ -178,6 +190,7 @@ function runQuizTests() {
   // 此时错题集应有 1 题（趁后面答对之前先验证）
   const qWrongNow = loadPage('pages/quiz/quiz.js');
   qWrongNow.onLoad({ mode: 'wrong', level: 'ALL' });
+  await tick();
   ok(qWrongNow.list.length === 1 && qWrongNow.list[0] === q1.id,
     '错题集含刚才答错的 1 题', '实际 ' + qWrongNow.list.length);
 
@@ -185,6 +198,7 @@ function runQuizTests() {
   console.log('\n[6] 多选题');
   const quizMulti = loadPage('pages/quiz/quiz.js');
   quizMulti.onLoad({ level: 'ALL', mode: 'seq' });
+  await tick();
   let multiIdx = -1;
   for (let i = 0; i < quizMulti.list.length; i++) {
     if (map[quizMulti.list[i]].type === 'multi') { multiIdx = i; break; }
@@ -209,6 +223,7 @@ function runQuizTests() {
   // 多选题取消选中
   const quizToggle = loadPage('pages/quiz/quiz.js');
   quizToggle.onLoad({ level: 'ALL', mode: 'seq' });
+  await tick();
   quizToggle.goTo(multiIdx);
   const tk = quizToggle.currentQ.answer.split('')[0];
   quizToggle.onOptionTap({ currentTarget: { dataset: { key: tk } } });
@@ -220,14 +235,17 @@ function runQuizTests() {
   console.log('\n[7] 专项列表');
   const qWrong = loadPage('pages/quiz/quiz.js');
   qWrong.onLoad({ mode: 'wrong', level: 'ALL' });
+  await tick();
   ok(qWrong.data.emptyText.indexOf('错题') >= 0, '错题全清后给出空态引导');
 
   const qEmptyFav = loadPage('pages/quiz/quiz.js');
   qEmptyFav.onLoad({ mode: 'favorite', level: 'ALL' });
+  await tick();
   ok(qEmptyFav.data.emptyText.indexOf('收藏') >= 0, '收藏集为空时给出引导文案');
 
   const qNotes = loadPage('pages/quiz/quiz.js');
   qNotes.onLoad({ mode: 'notes', level: 'ALL' });
+  await tick();
   ok(qNotes.data.emptyText.indexOf('笔记') >= 0, '笔记为空时给出引导文案');
 
   // -------------------------------------------------------------- 8. 数据隔离

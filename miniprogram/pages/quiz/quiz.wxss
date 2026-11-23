@@ -1,7 +1,14 @@
+/* 刷题页需要撑满可视区，用 page 高度而非 100vh：
+   100vh 在小程序里含状态栏误差，会导致底部按钮被裁切 */
+page {
+  height: 100%;
+  overflow: hidden;
+}
+
 .quiz-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   box-sizing: border-box;
   background: #F4F6F6;
 }
@@ -50,8 +57,11 @@
 }
 
 /* ---- 滚动区 ---- */
+/* min-height: 0 是 flex 子项能正确滚动的关键，缺了它
+   scroll-view 会被内容撑高，底部导航被挤出屏幕 */
 .scroll-area {
   flex: 1;
+  min-height: 0;
   padding: 24rpx;
   box-sizing: border-box;
   overflow: hidden;

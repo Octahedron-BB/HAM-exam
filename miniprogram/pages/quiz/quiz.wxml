@@ -76,6 +76,8 @@
           placeholder="记录这道题的记忆口诀、易错点或法规条文…"
           maxlength="1000"
           auto-height
+          cursor-spacing="40"
+          show-confirm-bar="{{false}}"
           bindinput="onNoteInput"
           bindblur="onNoteBlur"
         />

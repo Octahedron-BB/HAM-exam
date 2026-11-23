@@ -24,16 +24,14 @@ Page({
   },
 
   onLoad() {
-    // 题库解析放到首屏渲染之后，避免冷启动卡顿
-    setTimeout(() => {
-      try {
-        const bank = QBank.load();
-        this.applyCounts(QBank.countByLevel(bank.questions));
-      } catch (err) {
-        console.error('[index] 题库加载失败', err);
-        wx.showToast({ title: '题库加载失败', icon: 'none' });
-      }
-    }, 60);
+    // 只读 counts.json（几百字节），不解析 600KB 题库，冷启动秒开
+    try {
+      const counts = QBank.loadCounts();
+      this.applyCounts(counts);
+    } catch (err) {
+      console.error('[index] 题量统计加载失败', err);
+      wx.showToast({ title: '题库信息加载失败', icon: 'none' });
+    }
   },
 
   /** 把各级别题量写进 levels，WXML 直接取 item.count */

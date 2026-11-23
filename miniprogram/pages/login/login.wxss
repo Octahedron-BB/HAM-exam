@@ -1,5 +1,11 @@
+/* 用 page 高度而非 100vh：小程序里 100vh 含状态栏误差，
+   会让渐变分界线位置偏下 */
+page {
+  height: 100%;
+}
+
 .login-page {
-  min-height: 100vh;
+  min-height: 100%;
   padding-top: 80rpx;
   box-sizing: border-box;
   background: linear-gradient(180deg, #0F766E 0%, #0F766E 340rpx, #F4F6F6 340rpx, #F4F6F6 100%);

@@ -49,6 +49,12 @@ Page({
     wx.setNavigationBarTitle({ title: MODE_TITLES[this.mode] || '刷题' });
     this.setData({ title: MODE_TITLES[this.mode] || '刷题' });
 
+    // 题库有 600KB，同步解析会阻塞首帧。先让"正在加载"渲染出来，
+    // 下一轮事件循环再解析，避免真机白屏。
+    setTimeout(() => this.initSession(), 0);
+  },
+
+  initSession() {
     try {
       const bank = QBank.load();
       this.map = QBank.buildIndex(bank.questions);
