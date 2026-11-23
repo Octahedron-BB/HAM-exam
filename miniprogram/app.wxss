@@ -121,7 +121,8 @@ button::after {
 
 /* ---- 主按钮 ---- */
 .btn-primary {
-  width: 100%;
+  width: 100% !important;
+  min-width: 0 !important;
   background: #0F766E;
   color: #FFFFFF;
   font-size: 30rpx;
@@ -140,7 +141,8 @@ button::after {
 
 /* ---- 次按钮（浅灰底）---- */
 .btn-secondary {
-  width: 100%;
+  width: 100% !important;
+  min-width: 0 !important;
   background: #F0F3F6;
   color: #111827;
   border: 1px solid #E5E7EB;
@@ -154,7 +156,8 @@ button::after {
 
 /* ---- 描边按钮 ---- */
 .btn-ghost {
-  width: 100%;
+  width: 100% !important;
+  min-width: 0 !important;
   background: transparent;
   color: #4B5563;
   border: 1px solid #E5E7EB;

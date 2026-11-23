@@ -11,14 +11,14 @@
     <view wx:else class="user-avatar user-avatar-empty">CQ</view>
 
     <view class="user-meta">
-      <view class="user-name">{{loggedIn ? profile.nickName : '业余无线电题库'}}</view>
+      <view class="user-name">{{loggedIn ? profile.nickName : 'HAM 题库'}}</view>
       <view class="user-sub">{{loggedIn ? 'CRAC A/B/C 类 · 点击修改资料' : '点击登录，记录属于你的刷题进度'}}</view>
     </view>
 
     <view class="user-action">{{loggedIn ? '资料 ›' : '登录 ›'}}</view>
   </view>
 
-  <!-- 选择题库级别（对齐原版英雄卡 + 进度条） -->
+  <!-- 选择题库级别 -->
   <view class="card">
     <view class="card-header-row">
       <view>
@@ -48,7 +48,7 @@
     </view>
   </view>
 
-  <!-- 刷题参数 + 双模式入口 -->
+  <!-- 刷题参数 + 同行双按钮 -->
   <view class="card">
     <view class="section-title">刷题参数</view>
 
@@ -63,14 +63,39 @@
       >{{item.label}}</view>
     </view>
 
+    <view class="config-label">题型筛选</view>
+    <view class="segmented">
+      <view
+        wx:for="{{qtypes}}"
+        wx:key="key"
+        class="seg-btn {{qtype === item.key ? 'seg-btn-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onQtypeTap"
+      >{{item.label}}</view>
+    </view>
+
     <view class="resume-hint">
       <view class="dot-indicator"></view>
       <text class="resume-hint-text">{{order === 'memorize' ? '背题模式：直接高亮显示正确答案' : (order === 'random' ? '随机刷题：打乱题目顺序，避免背位置' : '顺序刷题：支持断点续刷 · 共 ' + currentCount + ' 题')}}</text>
     </view>
 
-    <view class="cta-col">
-      <button class="btn-primary" bindtap="onStart">开始刷题</button>
-      <button wx:if="{{order !== 'memorize'}}" class="btn-secondary" bindtap="onStartMemorize">背题模式（直接看答案）</button>
+    <view class="cta-row">
+      <button class="btn-primary cta-btn" bindtap="onStart">开始刷题</button>
+      <button wx:if="{{order !== 'memorize'}}" class="btn-secondary cta-btn" bindtap="onStartMemorize">背题模式</button>
+    </view>
+  </view>
+
+  <!-- 考点专项 & 模拟组卷快捷入口 -->
+  <view class="feature-grid">
+    <view class="card feature-card" bindtap="onOpenSyllabus">
+      <view class="feature-tag">考纲</view>
+      <view class="feature-title">考点专项</view>
+      <view class="feature-desc">5 大章 29 节逐一突破</view>
+    </view>
+    <view class="card feature-card" bindtap="onOpenExam">
+      <view class="feature-tag feature-tag-amber">模考</view>
+      <view class="feature-title">模拟组卷</view>
+      <view class="feature-desc">A/B/C 全真限时 & 组卷</view>
     </view>
   </view>
 
@@ -103,12 +128,12 @@
     </view>
   </view>
 
-  <!-- 专项入口 -->
+  <!-- 专项入口（支持批量管理） -->
   <view class="card entry-card">
     <view class="entry-row" bindtap="onOpenWrong">
       <view class="entry-left">
         <view class="entry-dot entry-dot-danger"></view>
-        <view class="entry-name">错题集</view>
+        <view class="entry-name">错题集（支持批量管理）</view>
       </view>
       <view class="entry-meta mono">{{stats.wrong}} 题 ›</view>
     </view>
@@ -128,5 +153,23 @@
     </view>
   </view>
 
-  <view class="footer-tip">CQ · 业余无线电操作技术能力刷题系统</view>
+  <!-- 偏好设置 -->
+  <view class="card entry-card">
+    <view class="setting-row">
+      <view class="setting-info">
+        <view class="setting-title">选项随机打乱</view>
+        <view class="setting-desc">防止单选总在 A 位形成位置记忆</view>
+      </view>
+      <switch checked="{{shuffleOptions}}" color="#0F766E" bindchange="onToggleShuffle" />
+    </view>
+    <view class="setting-row setting-row-last">
+      <view class="setting-info">
+        <view class="setting-title">做对后自动移出错题集</view>
+        <view class="setting-desc">重练答对时自动移出</view>
+      </view>
+      <switch checked="{{autoRemoveWrong}}" color="#0F766E" bindchange="onToggleAutoRemove" />
+    </view>
+  </view>
+
+  <view class="footer-tip">HAM 题库 · 业余无线电操作技术能力刷题系统</view>
 </view>

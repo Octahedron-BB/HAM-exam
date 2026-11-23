@@ -1,11 +1,14 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/login/login",
-    "pages/quiz/quiz"
+    "pages/syllabus/syllabus",
+    "pages/exam/exam",
+    "pages/library/library",
+    "pages/quiz/quiz",
+    "pages/login/login"
   ],
   "window": {
-    "navigationBarTitleText": "电波题库",
+    "navigationBarTitleText": "HAM题库",
     "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#F5F7F9",

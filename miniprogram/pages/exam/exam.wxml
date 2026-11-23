@@ -1,0 +1,124 @@
+<view class="page-wrap">
+  <!-- 全真模拟考 -->
+  <view class="card">
+    <view class="section-title">全真模拟考试</view>
+    <view class="section-desc">参照官方操作技术能力验证标准，限时作答，交卷统一判分</view>
+
+    <view class="mock-list">
+      <view class="mock-card" data-mock="A" bindtap="onStartMock">
+        <view class="mock-info">
+          <view class="mock-head">
+            <text class="mock-name">A类模拟考</text>
+            <text class="mono-pill">25题及格</text>
+          </view>
+          <view class="mock-meta">共 30 题（单选25 + 多选5）· 限时 40 分钟</view>
+        </view>
+        <view class="mock-go">开考 ›</view>
+      </view>
+
+      <view class="mock-card" data-mock="B" bindtap="onStartMock">
+        <view class="mock-info">
+          <view class="mock-head">
+            <text class="mock-name">B类模拟考</text>
+            <text class="mono-pill">40题及格</text>
+          </view>
+          <view class="mock-meta">共 50 题（单选40 + 多选10）· 限时 60 分钟</view>
+        </view>
+        <view class="mock-go">开考 ›</view>
+      </view>
+
+      <view class="mock-card" data-mock="C" bindtap="onStartMock">
+        <view class="mock-info">
+          <view class="mock-head">
+            <text class="mock-name">C类模拟考</text>
+            <text class="mono-pill">60题及格</text>
+          </view>
+          <view class="mock-meta">共 80 题（单选65 + 多选15）· 限时 90 分钟</view>
+        </view>
+        <view class="mock-go">开考 ›</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义组卷 -->
+  <view class="card">
+    <view class="section-title">自定义组卷</view>
+    <view class="section-desc">按题库、题数、章节与抽题策略自由组卷</view>
+
+    <view class="cfg-lbl">题库范围</view>
+    <view class="segmented">
+      <view
+        wx:for="{{levels}}"
+        wx:key="key"
+        class="seg-btn {{level === item.key ? 'seg-btn-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onLevelTap"
+      >{{item.label}}</view>
+    </view>
+
+    <view class="counts-row">
+      <view class="count-col">
+        <view class="cfg-lbl">单选题数</view>
+        <input class="num-input mono" type="number" value="{{singleCount}}" bindinput="onSingleInput" />
+      </view>
+      <view class="count-col">
+        <view class="cfg-lbl">多选题数</view>
+        <input class="num-input mono" type="number" value="{{multiCount}}" bindinput="onMultiInput" />
+      </view>
+      <view class="count-col">
+        <view class="cfg-lbl">限时(分钟)</view>
+        <input class="num-input mono" type="number" value="{{durationMin}}" bindinput="onDurationInput" />
+      </view>
+    </view>
+
+    <view class="cfg-lbl">抽题策略</view>
+    <view class="segmented">
+      <view
+        wx:for="{{strategies}}"
+        wx:key="key"
+        class="seg-btn {{strategy === item.key ? 'seg-btn-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onStrategyTap"
+      >{{item.label}}</view>
+    </view>
+
+    <view class="cfg-lbl">考点章节</view>
+    <view class="ch-chips">
+      <view
+        wx:for="{{chapters}}"
+        wx:key="id"
+        class="ch-chip {{item.checked ? 'ch-chip-active' : ''}}"
+        data-idx="{{index}}"
+        bindtap="onToggleChapter"
+      >{{item.checked ? '✓ ' : ''}}{{item.label}}</view>
+    </view>
+
+    <view class="cta-row">
+      <button class="btn-primary cta-btn" data-mode="exam" bindtap="onBuildPaper">开考（交卷判分）</button>
+      <button class="btn-secondary cta-btn" data-mode="paper_practice" bindtap="onBuildPaper">刷题（实时判分）</button>
+    </view>
+  </view>
+
+  <!-- 模考历史记录 -->
+  <view class="card">
+    <view class="hist-head">
+      <view class="section-title">模考成绩记录</view>
+      <view wx:if="{{history.length > 0}}" class="hist-clear" bindtap="onClearHistory">清空</view>
+    </view>
+
+    <view wx:if="{{history.length === 0}}" class="empty-state" style="padding: 36rpx 0;">
+      暂无模考记录，点击上方卡片即可开始
+    </view>
+
+    <view wx:else class="hist-list">
+      <view wx:for="{{history}}" wx:key="id" class="hist-item">
+        <view class="hist-top">
+          <text class="badge {{item.passed ? '' : 'badge-warn'}}">{{item.passed ? '合格' : '未及格'}}</text>
+          <text class="hist-score mono">{{item.score}} / {{item.total}}</text>
+          <text class="hist-meta mono">用时 {{item.durationText}} · {{item.dateStr}}</text>
+        </view>
+        <view class="hist-title">{{item.title}}</view>
+      </view>
+    </view>
+  </view>
+</view>

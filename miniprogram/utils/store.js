@@ -261,6 +261,79 @@ class ExamStore {
     };
   }
 
+  // ---- 批量管理 ----
+  removeWrongBatch(qids) {
+    qids.forEach((id) => { delete this.wrongBook[id]; });
+    driver.set(scopedKey('wrong_book'), this.wrongBook);
+  }
+
+  addFavoritesBatch(qids) {
+    const now = Date.now();
+    qids.forEach((id) => { if (!this.favorites[id]) this.favorites[id] = now; });
+    driver.set(scopedKey('favorites'), this.favorites);
+  }
+
+  removeFavoritesBatch(qids) {
+    qids.forEach((id) => { delete this.favorites[id]; });
+    driver.set(scopedKey('favorites'), this.favorites);
+  }
+
+  deleteNotesBatch(qids) {
+    qids.forEach((id) => { delete this.notes[id]; });
+    driver.set(scopedKey('notes'), this.notes);
+  }
+
+  // ---- 题目评论（预留云开发接口）----
+  listComments(qid) {
+    const list = this.comments[qid] ? this.comments[qid].slice() : [];
+    return list.sort((a, b) => (b.likes || 0) - (a.likes || 0) || (b.createdAt || 0) - (a.createdAt || 0));
+  }
+
+  addComment(qid, text, author) {
+    const trimmed = (text || '').trim();
+    if (!trimmed) return null;
+    if (!this.comments[qid]) this.comments[qid] = [];
+    const p = getProfile();
+    const item = {
+      id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      author: (author || (p && p.nickName) || '无线电爱好者').trim(),
+      text: trimmed,
+      likes: 0,
+      createdAt: Date.now(),
+      userId: p ? p.userId : 'guest'
+    };
+    this.comments[qid].unshift(item);
+    driver.set('comments', this.comments);
+    return item;
+  }
+
+  toggleCommentLike(qid, commentId) {
+    const list = this.comments[qid];
+    if (!list) return false;
+    const target = list.find((c) => c.id === commentId);
+    if (!target) return false;
+    if (this.commentLikes[commentId]) {
+      delete this.commentLikes[commentId];
+      target.likes = Math.max(0, (target.likes || 1) - 1);
+    } else {
+      this.commentLikes[commentId] = true;
+      target.likes = (target.likes || 0) + 1;
+    }
+    driver.set('comments', this.comments);
+    driver.set(scopedKey('comment_likes'), this.commentLikes);
+    return Boolean(this.commentLikes[commentId]);
+  }
+
+  isCommentLiked(commentId) {
+    return Boolean(this.commentLikes[commentId]);
+  }
+
+  deleteComment(qid, commentId) {
+    if (!this.comments[qid]) return;
+    this.comments[qid] = this.comments[qid].filter((c) => c.id !== commentId);
+    driver.set('comments', this.comments);
+  }
+
   resetProgress() {
     this.answered = {};
     this.sessions = {};

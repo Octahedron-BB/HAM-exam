@@ -8,23 +8,30 @@ Page({
     stats: { total: 0, correct: 0, wrong: 0, favorites: 0, notes: 0, accuracy: 0 },
     level: 'A',
     order: 'seq',
+    qtype: 'all',
+    shuffleOptions: true,
+    autoRemoveWrong: true,
     counts: { A: 0, B: 0, C: 0, ALL: 0 },
     currentCount: 0,
     levels: [
-      { key: 'A', label: 'A 类', desc: '初学' },
-      { key: 'B', label: 'B 类', desc: '进阶' },
-      { key: 'C', label: 'C 类', desc: '高级' },
-      { key: 'ALL', label: '总题库', desc: '全部' }
+      { key: 'A', label: 'A 类', desc: '初学 · 30W以下' },
+      { key: 'B', label: 'B 类', desc: '进阶 · 全频段' },
+      { key: 'C', label: 'C 类', desc: '高级 · 大功率' },
+      { key: 'ALL', label: '总题库', desc: '全部合并' }
     ],
     orders: [
-      { key: 'seq', label: '顺序' },
-      { key: 'random', label: '随机' },
-      { key: 'memorize', label: '背题' }
+      { key: 'seq', label: '顺序刷题' },
+      { key: 'random', label: '随机刷题' },
+      { key: 'memorize', label: '背题模式' }
+    ],
+    qtypes: [
+      { key: 'all', label: '全部题型' },
+      { key: 'single', label: '单选题' },
+      { key: 'multi', label: '多选题' }
     ]
   },
 
   onLoad() {
-    // 只读 counts.json（几百字节），不解析 600KB 题库，冷启动秒开
     try {
       const counts = QBank.loadCounts();
       this.applyCounts(counts);
@@ -34,7 +41,6 @@ Page({
     }
   },
 
-  /** 把各级别题量写进 levels，WXML 直接取 item.count */
   applyCounts(counts) {
     const levels = this.data.levels.map((item) =>
       Object.assign({}, item, { count: counts[item.key] || 0 })
@@ -60,6 +66,9 @@ Page({
       stats: store.getStats(),
       level,
       order: settings.order || 'seq',
+      qtype: settings.qtype || 'all',
+      shuffleOptions: settings.shuffleOptions !== false,
+      autoRemoveWrong: Boolean(settings.autoRemoveWrong),
       currentCount: this.data.counts[level] || 0
     });
   },
@@ -76,27 +85,53 @@ Page({
     store.saveSettings({ order });
   },
 
+  onQtypeTap(e) {
+    const qtype = e.currentTarget.dataset.key;
+    this.setData({ qtype });
+    store.saveSettings({ qtype });
+  },
+
   onStart() {
-    const { level, order } = this.data;
+    const { level, order, qtype } = this.data;
     const mode = order === 'memorize' ? 'memorize' : order;
-    wx.navigateTo({ url: '/pages/quiz/quiz?level=' + level + '&mode=' + mode });
+    wx.navigateTo({ url: `/pages/quiz/quiz?level=${level}&mode=${mode}&qtype=${qtype}` });
   },
 
   onStartMemorize() {
-    const { level } = this.data;
-    wx.navigateTo({ url: '/pages/quiz/quiz?level=' + level + '&mode=memorize' });
+    const { level, qtype } = this.data;
+    wx.navigateTo({ url: `/pages/quiz/quiz?level=${level}&mode=memorize&qtype=${qtype}` });
+  },
+
+  onOpenSyllabus() {
+    wx.navigateTo({ url: `/pages/syllabus/syllabus?level=${this.data.level}` });
+  },
+
+  onOpenExam() {
+    wx.navigateTo({ url: `/pages/exam/exam?level=${this.data.level}` });
   },
 
   onOpenWrong() {
-    wx.navigateTo({ url: '/pages/quiz/quiz?mode=wrong&level=ALL' });
+    wx.navigateTo({ url: '/pages/library/library?tab=wrong' });
   },
 
   onOpenFavorite() {
-    wx.navigateTo({ url: '/pages/quiz/quiz?mode=favorite&level=ALL' });
+    wx.navigateTo({ url: '/pages/library/library?tab=fav' });
   },
 
   onOpenNotes() {
-    wx.navigateTo({ url: '/pages/quiz/quiz?mode=notes&level=ALL' });
+    wx.navigateTo({ url: '/pages/library/library?tab=notes' });
+  },
+
+  onToggleShuffle(e) {
+    const shuffleOptions = Boolean(e.detail.value);
+    this.setData({ shuffleOptions });
+    store.saveSettings({ shuffleOptions });
+  },
+
+  onToggleAutoRemove(e) {
+    const autoRemoveWrong = Boolean(e.detail.value);
+    this.setData({ autoRemoveWrong });
+    store.saveSettings({ autoRemoveWrong });
   },
 
   onLoginTap() {

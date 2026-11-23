@@ -2,31 +2,32 @@
   <!-- 品牌区 -->
   <view class="brand">
     <view class="brand-badge">CQ</view>
-    <view class="brand-title">电波题库</view>
-    <view class="brand-sub">业余无线电 A / B / C 类操作证刷题</view>
+    <view class="brand-title">HAM 题库</view>
+    <view class="brand-sub">中国业余无线电 A / B / C 类操作证刷题</view>
   </view>
 
-  <!-- 登录表单 -->
-  <view class="card">
-    <view class="card-title">{{isEdit ? '编辑资料' : '登录后开始刷题'}}</view>
+  <!-- 登录表单卡 -->
+  <view class="card login-card">
+    <view class="card-title">{{isEdit ? '编辑个人资料' : '设置呼号 / 昵称'}}</view>
 
-    <view class="avatar-row">
+    <!-- 居中正圆头像选择 -->
+    <view class="avatar-center">
       <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
         <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
-        <text wx:else class="avatar-placeholder">选择头像</text>
+        <view wx:else class="avatar-empty">
+          <text class="avatar-plus">+</text>
+          <text class="avatar-hint">选头像</text>
+        </view>
       </button>
-      <view class="avatar-tip">
-        <view class="tip-main">点击左侧按钮选择头像</view>
-        <view class="tip-sub">头像仅保存在你的手机本地</view>
-      </view>
+      <view class="avatar-caption">{{avatarUrl ? '点击头像可更换' : '点击选择微信头像（仅本机保存）'}}</view>
     </view>
 
     <view class="field">
-      <view class="field-label">昵称</view>
+      <view class="field-label">呼号或昵称</view>
       <input
         class="field-input"
         type="nickname"
-        placeholder="请输入昵称"
+        placeholder="例如：BH1ABC 或 你的昵称"
         value="{{nickName}}"
         bindinput="onNickInput"
         maxlength="20"
@@ -37,22 +38,16 @@
       class="btn-primary submit-btn"
       bindtap="onSubmit"
       disabled="{{!canSubmit || submitting}}"
-    >{{isEdit ? '保存' : '登录'}}</button>
+    >{{isEdit ? '保存资料' : '进入 HAM 题库'}}</button>
 
-    <view wx:if="{{!isEdit}}" class="skip-row" bindtap="onSkip">先随便看看</view>
+    <view wx:if="{{!isEdit}}" class="skip-row" bindtap="onSkip">暂不设置，直接刷题</view>
   </view>
 
-  <!-- 隐私提示 -->
-  <view class="privacy-tip">
-    登录即表示你同意《电波题库用户隐私保护指引》：仅在你主动选择时读取头像与昵称，
-    用于在本机显示，不会上传服务器，也不会用于其他用途。
-  </view>
-
-  <!-- 说明 -->
-  <view class="notice">
-    <view class="notice-title">关于你的数据</view>
-    <view class="notice-line">· 答题记录、错题、笔记都保存在本机，不上传服务器</view>
-    <view class="notice-line">· 卸载小程序或清除缓存会一并删除，请在设置页做好导出备份</view>
-    <view class="notice-line">· 本站为个人学习工具，与任何官方机构无隶属关系</view>
+  <!-- 隐私与数据说明 -->
+  <view class="notice-card">
+    <view class="notice-title">隐私与数据说明</view>
+    <view class="notice-line">· 头像、昵称、刷题记录、错题与笔记均保存在本机</view>
+    <view class="notice-line">· 不会上传个人隐私信息，卸载或清缓存后数据将重置</view>
+    <view class="notice-line">· 本程序为业余无线电学习辅助工具，与官方机构无隶属关系</view>
   </view>
 </view>

@@ -158,11 +158,87 @@
   color: #4B5563;
 }
 
-.cta-col {
+.cta-row {
   display: flex;
-  flex-direction: column;
   gap: 16rpx;
   margin-top: 26rpx;
+}
+
+.cta-btn {
+  flex: 1;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+/* ---- 考点 & 模考 2列快捷卡 ---- */
+.feature-grid {
+  display: flex;
+  gap: 18rpx;
+  margin-bottom: 24rpx;
+}
+
+.feature-card {
+  flex: 1;
+  margin-bottom: 0;
+  padding: 28rpx 26rpx;
+}
+
+.feature-tag {
+  display: inline-block;
+  font-size: 20rpx;
+  font-weight: 700;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  background: #CCFBF1;
+  color: #0F766E;
+  margin-bottom: 12rpx;
+}
+
+.feature-tag-amber {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.feature-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.feature-desc {
+  font-size: 22rpx;
+  color: #6B7280;
+  margin-top: 4rpx;
+}
+
+/* ---- 偏好设置行 ---- */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 26rpx 0;
+  border-bottom: 1px solid #E5E7EB;
+  gap: 20rpx;
+}
+
+.setting-row-last {
+  border-bottom: none;
+}
+
+.setting-info {
+  flex: 1;
+}
+
+.setting-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111827;
+}
+
+.setting-desc {
+  font-size: 22rpx;
+  color: #6B7280;
+  margin-top: 4rpx;
 }
 
 /* ---- 统计 2×2 ---- */

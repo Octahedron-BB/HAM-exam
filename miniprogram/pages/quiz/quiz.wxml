@@ -8,17 +8,23 @@
   </view>
 
   <block wx:else>
-    <!-- 顶栏（对齐原版：标题+计数 | 做题/背题切换 | 收藏星标） -->
+    <!-- 顶栏 -->
     <view class="quiz-top">
       <view class="quiz-top-left">
         <text class="quiz-title">{{title}}</text>
         <text class="quiz-counter mono">{{index + 1}} / {{total}}</text>
       </view>
       <view class="quiz-top-right">
-        <view class="mode-pill">
-          <view class="mode-pill-btn {{!isMemorize ? 'mode-pill-active' : ''}}" data-mode="practice" bindtap="onSwitchMode">做题</view>
-          <view class="mode-pill-btn {{isMemorize ? 'mode-pill-active' : ''}}" data-mode="memorize" bindtap="onSwitchMode">背题</view>
-        </view>
+        <block wx:if="{{isExam}}">
+          <view class="exam-timer mono {{examUrgent ? 'exam-timer-urgent' : ''}}">{{examTimerText}}</view>
+          <view class="exam-submit-pill" bindtap="onConfirmSubmitExam">交卷</view>
+        </block>
+        <block wx:else>
+          <view class="mode-pill">
+            <view class="mode-pill-btn {{!isMemorize ? 'mode-pill-active' : ''}}" data-mode="practice" bindtap="onSwitchMode">做题</view>
+            <view class="mode-pill-btn {{isMemorize ? 'mode-pill-active' : ''}}" data-mode="memorize" bindtap="onSwitchMode">背题</view>
+          </view>
+        </block>
         <view class="fav-btn {{isFavorite ? 'fav-active' : ''}}" bindtap="onToggleFavorite">
           {{isFavorite ? '★' : '☆'}}
         </view>
@@ -36,7 +42,7 @@
         <view class="q-meta-row">
           <view class="q-badges">
             <text class="badge {{isMulti ? 'badge-multi' : ''}}">{{q.typeText}}</text>
-            <text wx:if="{{isWrong}}" class="badge badge-warn">错题</text>
+            <text wx:if="{{!isExam && isWrong}}" class="badge badge-warn">错题</text>
           </view>
           <text class="q-point mono">{{q.point}} · {{q.id}}</text>
         </view>
@@ -57,14 +63,14 @@
         </view>
 
         <button
-          wx:if="{{isMulti && !submitted}}"
+          wx:if="{{!isExam && isMulti && !submitted}}"
           class="btn-primary multi-submit"
           bindtap="onSubmitMulti"
           disabled="{{!canSubmitMulti}}"
         >确认提交多选答案</button>
 
         <view
-          wx:if="{{submitted}}"
+          wx:if="{{!isExam && submitted}}"
           class="q-feedback {{isMemorize ? 'is-memorize' : (isCorrect ? 'is-correct' : 'is-wrong')}}"
         >
           <block wx:if="{{isMemorize}}">
@@ -80,7 +86,7 @@
       </view>
 
       <!-- 随手笔记 -->
-      <view class="card note-card">
+      <view wx:if="{{!isExam}}" class="card note-card">
         <view class="note-head">
           <text class="note-title">随手笔记</text>
           <text class="note-save" bindtap="onSaveNote">保存笔记</text>
@@ -99,11 +105,11 @@
       </view>
     </scroll-view>
 
-    <!-- 底部 3 段式导航（对齐原版：上一题 | 答题卡 | 下一题） -->
+    <!-- 底部 3 段式导航 -->
     <view class="quiz-footer">
       <button class="btn-secondary flex1" bindtap="onPrev" disabled="{{index === 0}}">上一题</button>
       <button class="btn-ghost sheet-btn" bindtap="onOpenSheet">答题卡</button>
-      <button class="btn-primary flex1" bindtap="onNext">{{index === total - 1 ? '完成' : '下一题'}}</button>
+      <button class="btn-primary flex1" bindtap="onNext">{{index === total - 1 ? (isExam ? '交卷' : '完成') : '下一题'}}</button>
     </view>
 
     <!-- 答题卡弹窗 -->
@@ -115,8 +121,11 @@
         </view>
         <view class="sheet-legend">
           <view class="legend-item"><view class="legend-dot legend-current"></view><text>当前</text></view>
-          <view class="legend-item"><view class="legend-dot legend-correct"></view><text>正确</text></view>
-          <view class="legend-item"><view class="legend-dot legend-wrong"></view><text>错误</text></view>
+          <view wx:if="{{isExam}}" class="legend-item"><view class="legend-dot legend-answered"></view><text>已答</text></view>
+          <block wx:else>
+            <view class="legend-item"><view class="legend-dot legend-correct"></view><text>正确</text></view>
+            <view class="legend-item"><view class="legend-dot legend-wrong"></view><text>错误</text></view>
+          </block>
           <view class="legend-item"><view class="legend-dot legend-todo"></view><text>未做</text></view>
         </view>
         <scroll-view scroll-y class="sheet-scroll">
@@ -130,6 +139,25 @@
             >{{item.num}}</view>
           </view>
         </scroll-view>
+      </view>
+    </view>
+
+    <!-- 模考成绩单弹窗 -->
+    <view wx:if="{{showResult}}" class="result-mask">
+      <view class="card result-card">
+        <view class="result-badge {{resultPassed ? 'result-pass' : 'result-fail'}}">
+          {{resultPassed ? 'PASS · 合格' : 'FAIL · 未及格'}}
+        </view>
+        <view class="result-title">{{title}}</view>
+        <view class="result-score-box">
+          <view class="result-score mono">{{resultScore}}<text class="result-total">/{{resultTotal}}</text></view>
+          <view class="result-sub">{{resultSub}}</view>
+        </view>
+        <view class="result-actions">
+          <button wx:if="{{resultWrongCount > 0}}" class="btn-primary" bindtap="onReviewWrong">仅复盘本次错题 ({{resultWrongCount}})</button>
+          <button class="btn-secondary" bindtap="onReviewAll">核对全部题目解析</button>
+          <button class="btn-ghost" bindtap="onResultClose">返回</button>
+        </view>
       </view>
     </view>
   </block>

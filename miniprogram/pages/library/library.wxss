@@ -1,0 +1,150 @@
+.lib-actions {
+  display: flex;
+  gap: 14rpx;
+  margin-top: 22rpx;
+}
+
+.lib-action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx 16rpx;
+  border-radius: 18rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.lib-action-primary {
+  background: #0F766E;
+  color: #FFFFFF;
+}
+
+.lib-action-ghost {
+  background: #F0F3F6;
+  color: #111827;
+  border: 1px solid #E5E7EB;
+}
+
+.batch-bar {
+  margin-top: 20rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 20rpx;
+  background: #F5F7F9;
+  border: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.batch-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.batch-count {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #111827;
+}
+
+.batch-btns {
+  display: flex;
+  gap: 10rpx;
+}
+
+.batch-btn {
+  padding: 10rpx 18rpx;
+  border-radius: 14rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.batch-btn-teal {
+  background: #0F766E;
+  color: #FFFFFF;
+}
+
+.batch-btn-ghost {
+  background: #FFFFFF;
+  color: #111827;
+  border: 1px solid #E5E7EB;
+}
+
+.batch-btn-danger {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FCA5A5;
+}
+
+.chk-box {
+  width: 38rpx;
+  height: 38rpx;
+  line-height: 36rpx;
+  text-align: center;
+  border-radius: 10rpx;
+  border: 2rpx solid #D1D5DB;
+  background: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.chk-checked {
+  background: #0F766E;
+  border-color: #0F766E;
+}
+
+.lib-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.lib-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 26rpx 28rpx;
+  margin-bottom: 18rpx;
+}
+
+.lib-item-selected {
+  border-color: #0F766E;
+  background: #F0FDFA;
+}
+
+.lib-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.lib-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 12rpx;
+}
+
+.meta-id {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.lib-item-q {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.5;
+}
+
+.lib-note {
+  margin-top: 14rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 14rpx;
+  background: #FEF3C7;
+  color: #111827;
+  font-size: 24rpx;
+  line-height: 1.5;
+}

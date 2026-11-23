@@ -1,0 +1,160 @@
+.mock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-top: 22rpx;
+}
+
+.mock-card {
+  padding: 24rpx;
+  border-radius: 22rpx;
+  border: 2rpx solid #E5E7EB;
+  background: #F5F7F9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.mock-info {
+  flex: 1;
+}
+
+.mock-head {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-bottom: 8rpx;
+}
+
+.mock-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.mock-meta {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.mock-go {
+  padding: 12rpx 22rpx;
+  border-radius: 16rpx;
+  background: #0F766E;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.cfg-lbl {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #4B5563;
+  margin: 22rpx 0 10rpx;
+}
+
+.counts-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.count-col {
+  flex: 1;
+}
+
+.num-input {
+  height: 82rpx;
+  background: #F5F7F9;
+  border: 1px solid #E5E7EB;
+  border-radius: 18rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.ch-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.ch-chip {
+  padding: 12rpx 20rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid #E5E7EB;
+  background: #FFFFFF;
+  font-size: 24rpx;
+  color: #4B5563;
+}
+
+.ch-chip-active {
+  border-color: #0F766E;
+  background: #F0FDFA;
+  color: #0F766E;
+  font-weight: 600;
+}
+
+.cta-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+
+.cta-btn {
+  flex: 1;
+  width: auto !important;
+  min-width: 0 !important;
+}
+
+.hist-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.hist-clear {
+  font-size: 24rpx;
+  color: #6B7280;
+  padding: 8rpx 12rpx;
+}
+
+.hist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.hist-item {
+  padding: 20rpx 22rpx;
+  border-radius: 18rpx;
+  background: #F5F7F9;
+  border: 1px solid #E5E7EB;
+}
+
+.hist-top {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.hist-score {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.hist-meta {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.hist-title {
+  font-size: 26rpx;
+  color: #4B5563;
+}

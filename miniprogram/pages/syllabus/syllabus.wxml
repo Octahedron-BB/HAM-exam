@@ -1,0 +1,67 @@
+<view class="page-wrap">
+  <view class="card">
+    <view class="section-title">按考点分类刷题</view>
+    <view class="section-desc">依据 [P] 考纲编号自动归类，支持整章或单节专项突破</view>
+
+    <view class="segmented" style="margin-top: 22rpx;">
+      <view
+        wx:for="{{levels}}"
+        wx:key="key"
+        class="seg-btn {{level === item.key ? 'seg-btn-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onLevelTap"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty-state">正在整理考纲题量…</view>
+
+  <view wx:else class="syllabus-list">
+    <view wx:for="{{tree}}" wx:key="id" class="card chapter-card">
+      <view class="chapter-head" data-id="{{item.id}}" bindtap="onToggleChapter">
+        <view class="chapter-info">
+          <view class="chapter-title-row">
+            <text class="chapter-title">第{{item.id}}章 · {{item.title}}</text>
+            <text class="mono-pill">{{item.done}}/{{item.total}}</text>
+          </view>
+          <view class="chapter-desc">{{item.desc}}</view>
+        </view>
+        <view
+          class="chapter-go"
+          data-prefix="{{item.id}}"
+          data-mode="seq"
+          data-title="第{{item.id}}章 {{item.title}}"
+          catchtap="onGoPractice"
+        >刷整章</view>
+      </view>
+
+      <view wx:if="{{openMap[item.id]}}" class="section-list">
+        <view wx:for="{{item.sections}}" wx:for-item="sec" wx:key="code" class="section-item">
+          <view class="section-main">
+            <view class="section-name-row">
+              <text class="section-code mono">{{sec.code}}</text>
+              <text class="section-name">{{sec.title}}</text>
+            </view>
+            <view class="section-count mono">已刷 {{sec.done}} / {{sec.total}} 题</view>
+          </view>
+          <view class="section-btns">
+            <view
+              class="sec-btn sec-btn-ghost"
+              data-prefix="{{sec.code}}"
+              data-mode="memorize"
+              data-title="{{sec.code}} {{sec.title}}"
+              bindtap="onGoPractice"
+            >背题</view>
+            <view
+              class="sec-btn sec-btn-primary"
+              data-prefix="{{sec.code}}"
+              data-mode="seq"
+              data-title="{{sec.code}} {{sec.title}}"
+              bindtap="onGoPractice"
+            >刷题</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

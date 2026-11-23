@@ -1,0 +1,62 @@
+<view class="page-wrap">
+  <view class="card">
+    <view class="segmented">
+      <view class="seg-btn {{tabIdx === 0 ? 'seg-btn-active' : ''}}" data-tab="wrong" bindtap="onTabTap">错题 ({{wrongCount}})</view>
+      <view class="seg-btn {{tabIdx === 1 ? 'seg-btn-active' : ''}}" data-tab="fav" bindtap="onTabTap">收藏 ({{favCount}})</view>
+      <view class="seg-btn {{tabIdx === 2 ? 'seg-btn-active' : ''}}" data-tab="notes" bindtap="onTabTap">笔记 ({{noteCount}})</view>
+    </view>
+
+    <view wx:if="{{items.length > 0}}" class="lib-actions">
+      <view class="lib-action-btn lib-action-primary" data-mode="{{tab === 'wrong' ? 'wrong' : (tab === 'fav' ? 'favorite' : 'notes')}}" bindtap="onPracticeAll">
+        {{tab === 'notes' ? '浏览笔记' : '全部开刷'}} ({{items.length}})
+      </view>
+      <view class="lib-action-btn {{batchMode ? 'lib-action-primary' : 'lib-action-ghost'}}" bindtap="onToggleBatch">
+        {{batchMode ? '完成管理' : '批量管理'}}
+      </view>
+    </view>
+
+    <!-- 批量操作栏 -->
+    <view wx:if="{{batchMode && items.length > 0}}" class="batch-bar">
+      <view class="batch-left" bindtap="onToggleSelectAll">
+        <view class="chk-box {{allSelected ? 'chk-checked' : ''}}">{{allSelected ? '✓' : ''}}</view>
+        <text class="batch-count">全选 ({{selectedCount}}/{{items.length}})</text>
+      </view>
+      <view class="batch-btns">
+        <view wx:if="{{selectedCount > 0}}" class="batch-btn batch-btn-teal" bindtap="onPracticeSelected">刷所选</view>
+        <view wx:if="{{tab === 'wrong' && selectedCount > 0}}" class="batch-btn batch-btn-ghost" bindtap="onBatchAddFav">收藏</view>
+        <view wx:if="{{selectedCount > 0}}" class="batch-btn batch-btn-danger" bindtap="onBatchDelete">
+          {{tab === 'wrong' ? '移出' : (tab === 'fav' ? '取消收藏' : '删笔记')}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty-state">加载中…</view>
+  <view wx:elif="{{items.length === 0}}" class="card empty-state">
+    {{tab === 'wrong' ? '暂无错题，继续保持！' : (tab === 'fav' ? '还没有收藏任何题目，刷题时点星标即可收藏' : '还没有写过笔记，刷题时可在题目下方记录')}}
+  </view>
+
+  <view wx:else class="lib-list">
+    <view
+      wx:for="{{items}}"
+      wx:key="id"
+      class="card lib-item {{batchMode && item.selected ? 'lib-item-selected' : ''}}"
+      data-id="{{item.id}}"
+      data-idx="{{index}}"
+      bindtap="onItemTap"
+    >
+      <view wx:if="{{batchMode}}" class="chk-box {{item.selected ? 'chk-checked' : ''}}" style="margin-right: 18rpx; margin-top: 4rpx;">
+        {{item.selected ? '✓' : ''}}
+      </view>
+      <view class="lib-item-main">
+        <view class="lib-item-meta">
+          <text class="badge {{item.isMulti ? 'badge-multi' : ''}}">{{item.typeText}}</text>
+          <text wx:if="{{tab === 'wrong'}}" class="badge badge-warn">错 {{item.wrongCount}} 次</text>
+          <text class="meta-id mono">{{item.id}} · [{{item.p}}]</text>
+        </view>
+        <view class="lib-item-q">{{item.q}}</view>
+        <view wx:if="{{tab === 'notes' && item.note}}" class="lib-note">{{item.note}}</view>
+      </view>
+    </view>
+  </view>
+</view>
