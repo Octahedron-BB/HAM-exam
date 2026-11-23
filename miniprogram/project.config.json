@@ -14,16 +14,7 @@
     "es6": true,
     "minified": true,
     "postcss": true,
-    "urlCheck": true,
-    "coverView": true,
-    "lazyloadPlaceholderEnable": false,
-    "preloadBackgroundData": false,
-    "autoAudits": false,
-    "checkInvalidKey": true,
-    "checkSiteMap": true,
-    "uploadWithSourceMap": true,
-    "useCompilerPlugins": false,
-    "ignoreUploadUnusedFiles": true
+    "urlCheck": true
   },
   "compileType": "miniprogram",
   "appid": "wx43f6c4e7175f3ad0",
