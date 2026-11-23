@@ -1,18 +1,18 @@
 /* ============================================================
-   首页 —— 对齐网页版：卡片描边、2×2 统计网格、级别卡
+   首页 —— 对齐网页版视觉风格：柔和薄荷选中、胶囊分段器、进度条
    ============================================================ */
 
 /* ---- 用户条 ---- */
 .user-card {
   display: flex;
   align-items: center;
-  padding: 28rpx 32rpx;
+  padding: 24rpx 30rpx;
 }
 
 .user-avatar {
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 50%;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 20rpx;
   flex-shrink: 0;
   background: #F0F3F6;
 }
@@ -31,28 +31,29 @@
 
 .user-meta {
   flex: 1;
-  margin-left: 22rpx;
+  margin-left: 20rpx;
   min-width: 0;
 }
 
 .user-name {
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: 700;
   color: #111827;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .user-sub {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #6B7280;
   margin-top: 4rpx;
 }
 
-.user-arrow {
-  color: #D1D5DB;
-  font-size: 40rpx;
-  line-height: 1;
+.user-action {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #0F766E;
   margin-left: 12rpx;
+  flex-shrink: 0;
 }
 
 /* ---- 卡片头 ---- */
@@ -64,62 +65,32 @@
   margin-bottom: 24rpx;
 }
 
-/* ---- 统计 2×2 ---- */
-.stats-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20rpx;
-}
-
-.stat-box {
-  width: calc(50% - 10rpx);
-  box-sizing: border-box;
-  padding: 28rpx 16rpx;
-  border-radius: 24rpx;
-  background: #F0F3F6;
-  text-align: center;
-}
-
-.stat-val {
-  display: block;
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #0F766E;
-  line-height: 1.2;
-}
-
-.stat-lbl {
-  font-size: 24rpx;
-  color: #6B7280;
-  margin-top: 6rpx;
-}
-
 /* ---- 级别选择 ---- */
 .level-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 20rpx;
+  gap: 18rpx;
 }
 
 .level-card {
-  width: calc(50% - 10rpx);
+  width: calc(50% - 9rpx);
   box-sizing: border-box;
-  padding: 28rpx;
+  padding: 24rpx;
   border-radius: 24rpx;
-  border: 3rpx solid #E5E7EB;
+  border: 2rpx solid #E5E7EB;
   background: #FFFFFF;
 }
 
 .level-card-active {
   border-color: #0F766E;
-  background: #CCFBF1;
+  background: #F0FDFA;
 }
 
 .level-top {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
 }
 
 .level-code {
@@ -133,68 +104,107 @@
 }
 
 .level-count {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #6B7280;
 }
 
-.level-card-active .level-count {
-  color: #0F766E;
+.level-name {
+  font-size: 22rpx;
+  color: #4B5563;
+  margin-bottom: 16rpx;
 }
 
-.level-name {
+.mini-progress {
+  height: 6rpx;
+  background: #E5E7EB;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: #0F766E;
+  border-radius: 999rpx;
+}
+
+/* ---- 刷题参数 ---- */
+.config-label {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #4B5563;
+  margin: 22rpx 0 12rpx;
+}
+
+.resume-hint {
+  margin-top: 22rpx;
+  padding: 18rpx 22rpx;
+  border-radius: 16rpx;
+  background: #F0F3F6;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.dot-indicator {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #0F766E;
+  flex-shrink: 0;
+}
+
+.resume-hint-text {
   font-size: 24rpx;
   color: #4B5563;
 }
 
-.level-card-active .level-name {
-  color: #0F766E;
-}
-
-/* ---- 刷题方式 ---- */
-.seg-row {
+.cta-col {
   display: flex;
+  flex-direction: column;
   gap: 16rpx;
-  margin-top: 22rpx;
+  margin-top: 26rpx;
 }
 
-.seg-item {
-  flex: 1;
+/* ---- 统计 2×2 ---- */
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18rpx;
+}
+
+.stat-box {
+  width: calc(50% - 9rpx);
+  box-sizing: border-box;
+  padding: 24rpx 16rpx;
+  border-radius: 24rpx;
+  background: #F0F3F6;
   text-align: center;
-  padding: 20rpx 0;
-  border-radius: 20rpx;
-  border: 3rpx solid #E5E7EB;
-  background: #FFFFFF;
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #4B5563;
 }
 
-.seg-item-active {
-  border-color: #0F766E;
-  background: #CCFBF1;
+.stat-val {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
   color: #0F766E;
+  line-height: 1.2;
 }
 
-.seg-hint {
-  margin-top: 20rpx;
-}
-
-/* ---- 开始按钮 ---- */
-.start-btn {
-  width: 100%;
-  margin-bottom: 24rpx;
+.stat-lbl {
+  font-size: 22rpx;
+  color: #6B7280;
+  margin-top: 6rpx;
 }
 
 /* ---- 专项入口 ---- */
 .entry-card {
-  padding: 0 36rpx;
+  padding: 0 32rpx;
 }
 
 .entry-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30rpx 0;
+  padding: 28rpx 0;
   border-bottom: 1px solid #E5E7EB;
 }
 
@@ -202,8 +212,25 @@
   border-bottom: none;
 }
 
+.entry-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.entry-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+}
+
+.entry-dot-danger { background: #DC2626; }
+.entry-dot-amber { background: #D97706; }
+.entry-dot-teal { background: #0F766E; }
+
 .entry-name {
   font-size: 28rpx;
+  font-weight: 600;
   color: #111827;
 }
 

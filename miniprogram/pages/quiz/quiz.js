@@ -36,7 +36,9 @@ Page({
     canSubmitMulti: false,
     noteText: '',
     isFavorite: false,
-    isWrong: false
+    isWrong: false,
+    showSheet: false,
+    sheetItems: []
   },
 
   onLoad(options) {
@@ -280,6 +282,42 @@ Page({
     this.saveNote(false);
     this.goTo(this.data.index + 1);
   },
+
+  onSwitchMode(e) {
+    const target = e.currentTarget.dataset.mode;
+    if (!target || target === (this.mode === 'memorize' ? 'memorize' : 'practice')) return;
+    if (target === 'memorize') {
+      this._prevMode = this.mode === 'memorize' ? 'seq' : this.mode;
+      this.mode = 'memorize';
+    } else {
+      this.mode = this._prevMode || 'seq';
+    }
+    this.goTo(this.data.index);
+  },
+
+  onOpenSheet() {
+    const sheetItems = this.list.map((id, idx) => {
+      const res = this.sessionResults[id];
+      let cls = '';
+      if (idx === this.data.index) cls = 'current';
+      else if (res) cls = res.isCorrect ? 'correct' : 'wrong';
+      return { idx, num: idx + 1, cls };
+    });
+    this.setData({ showSheet: true, sheetItems });
+  },
+
+  onCloseSheet() {
+    this.setData({ showSheet: false });
+  },
+
+  onJumpTo(e) {
+    const idx = Number(e.currentTarget.dataset.idx);
+    this.saveNote(false);
+    this.setData({ showSheet: false });
+    this.goTo(idx);
+  },
+
+  noop() {},
 
   onExit() {
     this.saveNote(false);

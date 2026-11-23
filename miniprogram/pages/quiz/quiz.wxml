@@ -8,28 +8,37 @@
   </view>
 
   <block wx:else>
-    <!-- 顶部进度细线（原版 .quiz-progress-bar 3px） -->
+    <!-- 顶栏（对齐原版：标题+计数 | 做题/背题切换 | 收藏星标） -->
+    <view class="quiz-top">
+      <view class="quiz-top-left">
+        <text class="quiz-title">{{title}}</text>
+        <text class="quiz-counter mono">{{index + 1}} / {{total}}</text>
+      </view>
+      <view class="quiz-top-right">
+        <view class="mode-pill">
+          <view class="mode-pill-btn {{!isMemorize ? 'mode-pill-active' : ''}}" data-mode="practice" bindtap="onSwitchMode">做题</view>
+          <view class="mode-pill-btn {{isMemorize ? 'mode-pill-active' : ''}}" data-mode="memorize" bindtap="onSwitchMode">背题</view>
+        </view>
+        <view class="fav-btn {{isFavorite ? 'fav-active' : ''}}" bindtap="onToggleFavorite">
+          {{isFavorite ? '★' : '☆'}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 顶部进度细线 -->
     <view class="progress-line">
       <view class="progress-fill" style="width: {{progressPercent}}"></view>
     </view>
 
-    <!-- 顶栏 -->
-    <view class="quiz-top">
-      <view class="quiz-counter mono">{{index + 1}} / {{total}}</view>
-      <view class="fav-btn {{isFavorite ? 'fav-active' : ''}}" bindtap="onToggleFavorite">
-        {{isFavorite ? '★' : '☆'}}
-      </view>
-    </view>
-
     <scroll-view scroll-y class="scroll-area">
-      <!-- 题干 + 选项 + 判分（同一张卡片，与原版结构一致） -->
+      <!-- 题干 + 选项 + 判分 -->
       <view class="card q-card">
         <view class="q-meta-row">
           <view class="q-badges">
-            <text class="badge">{{q.typeText}}</text>
+            <text class="badge {{isMulti ? 'badge-multi' : ''}}">{{q.typeText}}</text>
             <text wx:if="{{isWrong}}" class="badge badge-warn">错题</text>
           </view>
-          <text class="q-point mono">{{q.point}}</text>
+          <text class="q-point mono">{{q.point}} · {{q.id}}</text>
         </view>
 
         <view class="q-stem">{{q.text}}</view>
@@ -59,22 +68,22 @@
           class="q-feedback {{isMemorize ? 'is-memorize' : (isCorrect ? 'is-correct' : 'is-wrong')}}"
         >
           <block wx:if="{{isMemorize}}">
-            <text>背题模式 · 答案</text><text class="mono feedback-answer">{{answerText}}</text>
+            <text>背题模式 · 正确答案</text><text class="mono feedback-answer">{{answerText}}</text>
           </block>
           <block wx:elif="{{isCorrect}}">
-            <text>回答正确</text><text class="mono feedback-answer">{{answerText}}</text>
+            <text>回答正确！</text><text class="mono feedback-answer">答案：{{answerText}}</text>
           </block>
           <block wx:else>
-            <text>回答错误（你选了 {{selectedText}}）</text><text class="mono feedback-answer">{{answerText}}</text>
+            <text>回答错误（你选了 {{selectedText}}）</text><text class="mono feedback-answer">答案：{{answerText}}</text>
           </block>
         </view>
       </view>
 
-      <!-- 笔记 -->
+      <!-- 随手笔记 -->
       <view class="card note-card">
         <view class="note-head">
           <text class="note-title">随手笔记</text>
-          <text class="note-save" bindtap="onSaveNote">保存</text>
+          <text class="note-save" bindtap="onSaveNote">保存笔记</text>
         </view>
         <textarea
           class="note-input"
@@ -90,10 +99,38 @@
       </view>
     </scroll-view>
 
-    <!-- 底部导航 -->
+    <!-- 底部 3 段式导航（对齐原版：上一题 | 答题卡 | 下一题） -->
     <view class="quiz-footer">
-      <button class="btn-ghost flex1" bindtap="onPrev" disabled="{{index === 0}}">上一题</button>
-      <button class="btn-primary flex2" bindtap="onNext">{{index === total - 1 ? '完成' : '下一题'}}</button>
+      <button class="btn-secondary flex1" bindtap="onPrev" disabled="{{index === 0}}">上一题</button>
+      <button class="btn-ghost sheet-btn" bindtap="onOpenSheet">答题卡</button>
+      <button class="btn-primary flex1" bindtap="onNext">{{index === total - 1 ? '完成' : '下一题'}}</button>
+    </view>
+
+    <!-- 答题卡弹窗 -->
+    <view wx:if="{{showSheet}}" class="sheet-mask" bindtap="onCloseSheet">
+      <view class="sheet-panel" catchtap="noop">
+        <view class="sheet-head">
+          <text class="sheet-title">答题卡</text>
+          <text class="sheet-close" bindtap="onCloseSheet">✕</text>
+        </view>
+        <view class="sheet-legend">
+          <view class="legend-item"><view class="legend-dot legend-current"></view><text>当前</text></view>
+          <view class="legend-item"><view class="legend-dot legend-correct"></view><text>正确</text></view>
+          <view class="legend-item"><view class="legend-dot legend-wrong"></view><text>错误</text></view>
+          <view class="legend-item"><view class="legend-dot legend-todo"></view><text>未做</text></view>
+        </view>
+        <scroll-view scroll-y class="sheet-scroll">
+          <view class="sheet-grid">
+            <view
+              wx:for="{{sheetItems}}"
+              wx:key="idx"
+              class="sheet-num mono {{item.cls}}"
+              data-idx="{{item.idx}}"
+              bindtap="onJumpTo"
+            >{{item.num}}</view>
+          </view>
+        </scroll-view>
+      </view>
     </view>
   </block>
 </view>

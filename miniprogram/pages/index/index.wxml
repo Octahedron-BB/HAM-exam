@@ -1,6 +1,6 @@
 <view class="page-wrap">
 
-  <!-- 用户 -->
+  <!-- 顶部品牌与用户条 -->
   <view class="card user-card" bindtap="onLoginTap">
     <image
       wx:if="{{profile.avatarUrl}}"
@@ -11,48 +11,19 @@
     <view wx:else class="user-avatar user-avatar-empty">CQ</view>
 
     <view class="user-meta">
-      <view class="user-name">{{loggedIn ? profile.nickName : '未登录'}}</view>
-      <view class="user-sub">{{loggedIn ? '点击可修改资料' : '点击登录，记录属于你的学习进度'}}</view>
+      <view class="user-name">{{loggedIn ? profile.nickName : '业余无线电题库'}}</view>
+      <view class="user-sub">{{loggedIn ? 'CRAC A/B/C 类 · 点击修改资料' : '点击登录，记录属于你的刷题进度'}}</view>
     </view>
 
-    <view class="user-arrow">›</view>
+    <view class="user-action">{{loggedIn ? '资料 ›' : '登录 ›'}}</view>
   </view>
 
-  <!-- 学习概况 -->
-  <view class="card">
-    <view class="card-header-row">
-      <view>
-        <view class="section-title">学习概况</view>
-        <view class="section-desc">答题记录只保存在本机</view>
-      </view>
-    </view>
-
-    <view class="stats-grid">
-      <view class="stat-box">
-        <view class="stat-val mono">{{stats.total}}</view>
-        <view class="stat-lbl">已作答</view>
-      </view>
-      <view class="stat-box">
-        <view class="stat-val mono">{{stats.accuracy}}%</view>
-        <view class="stat-lbl">正确率</view>
-      </view>
-      <view class="stat-box">
-        <view class="stat-val mono">{{stats.wrong}}</view>
-        <view class="stat-lbl">错题</view>
-      </view>
-      <view class="stat-box">
-        <view class="stat-val mono">{{stats.favorites}}</view>
-        <view class="stat-lbl">收藏</view>
-      </view>
-    </view>
-  </view>
-
-  <!-- 选择题库级别 -->
+  <!-- 选择题库级别（对齐原版英雄卡 + 进度条） -->
   <view class="card">
     <view class="card-header-row">
       <view>
         <view class="section-title">选择题库级别</view>
-        <view class="section-desc">依据 CRAC 考试大纲整理</view>
+        <view class="section-desc">依据 CRAC 官方操作技术能力题库整理</view>
       </view>
       <view class="mono-pill">{{currentCount}} 题</view>
     </view>
@@ -67,49 +38,95 @@
       >
         <view class="level-top">
           <text class="level-code">{{item.label}}</text>
-          <text class="level-count mono">{{item.count}}</text>
+          <text class="level-count mono">{{item.count}} 题</text>
         </view>
         <view class="level-name">{{item.desc}}</view>
+        <view class="mini-progress">
+          <view class="mini-progress-fill" style="width: {{level === item.key && item.count ? (stats.total > 0 ? (stats.total > item.count ? 100 : (stats.total * 100 / item.count)) : 0) : 0}}%"></view>
+        </view>
       </view>
     </view>
   </view>
 
-  <!-- 刷题方式 -->
+  <!-- 刷题参数 + 双模式入口 -->
   <view class="card">
-    <view class="section-title">刷题方式</view>
+    <view class="section-title">刷题参数</view>
 
-    <view class="seg-row">
+    <view class="config-label">出题方式</view>
+    <view class="segmented">
       <view
         wx:for="{{orders}}"
         wx:key="key"
-        class="seg-item {{order === item.key ? 'seg-item-active' : ''}}"
+        class="seg-btn {{order === item.key ? 'seg-btn-active' : ''}}"
         data-key="{{item.key}}"
         bindtap="onOrderTap"
       >{{item.label}}</view>
     </view>
 
-    <view class="section-desc seg-hint">
-      {{order === 'memorize' ? '背题模式：直接显示答案与解析，适合快速过题' : (order === 'random' ? '随机模式：打乱题目顺序，避免形成位置记忆' : '顺序模式：按考纲顺序推进，支持断点续刷')}}
+    <view class="resume-hint">
+      <view class="dot-indicator"></view>
+      <text class="resume-hint-text">{{order === 'memorize' ? '背题模式：直接高亮显示正确答案' : (order === 'random' ? '随机刷题：打乱题目顺序，避免背位置' : '顺序刷题：支持断点续刷 · 共 ' + currentCount + ' 题')}}</text>
+    </view>
+
+    <view class="cta-col">
+      <button class="btn-primary" bindtap="onStart">开始刷题</button>
+      <button wx:if="{{order !== 'memorize'}}" class="btn-secondary" bindtap="onStartMemorize">背题模式（直接看答案）</button>
     </view>
   </view>
 
-  <button class="btn-primary start-btn" bindtap="onStart">开始刷题</button>
+  <!-- 学习概况 2×2 -->
+  <view class="card">
+    <view class="card-header-row">
+      <view>
+        <view class="section-title">学习概况</view>
+        <view class="section-desc">当前账号答题记录</view>
+      </view>
+    </view>
+
+    <view class="stats-grid">
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.total}}</view>
+        <view class="stat-lbl">已刷题目</view>
+      </view>
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.accuracy}}%</view>
+        <view class="stat-lbl">综合正确率</view>
+      </view>
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.wrong}}</view>
+        <view class="stat-lbl">当前错题</view>
+      </view>
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.favorites}}</view>
+        <view class="stat-lbl">收藏题目</view>
+      </view>
+    </view>
+  </view>
 
   <!-- 专项入口 -->
   <view class="card entry-card">
     <view class="entry-row" bindtap="onOpenWrong">
-      <view class="entry-name">错题集</view>
+      <view class="entry-left">
+        <view class="entry-dot entry-dot-danger"></view>
+        <view class="entry-name">错题集</view>
+      </view>
       <view class="entry-meta mono">{{stats.wrong}} 题 ›</view>
     </view>
     <view class="entry-row" bindtap="onOpenFavorite">
-      <view class="entry-name">收藏集</view>
+      <view class="entry-left">
+        <view class="entry-dot entry-dot-amber"></view>
+        <view class="entry-name">收藏集</view>
+      </view>
       <view class="entry-meta mono">{{stats.favorites}} 题 ›</view>
     </view>
     <view class="entry-row entry-row-last" bindtap="onOpenNotes">
-      <view class="entry-name">我的笔记</view>
+      <view class="entry-left">
+        <view class="entry-dot entry-dot-teal"></view>
+        <view class="entry-name">我的笔记</view>
+      </view>
       <view class="entry-meta mono">{{stats.notes}} 条 ›</view>
     </view>
   </view>
 
-  <view class="footer-tip">本站为个人学习工具，与任何官方机构无隶属关系</view>
+  <view class="footer-tip">CQ · 业余无线电操作技术能力刷题系统</view>
 </view>

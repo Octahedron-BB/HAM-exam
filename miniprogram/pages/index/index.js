@@ -82,6 +82,11 @@ Page({
     wx.navigateTo({ url: '/pages/quiz/quiz?level=' + level + '&mode=' + mode });
   },
 
+  onStartMemorize() {
+    const { level } = this.data;
+    wx.navigateTo({ url: '/pages/quiz/quiz?level=' + level + '&mode=memorize' });
+  },
+
   onOpenWrong() {
     wx.navigateTo({ url: '/pages/quiz/quiz?mode=wrong&level=ALL' });
   },
