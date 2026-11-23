@@ -2255,9 +2255,56 @@
     $('#q-note-input').value = Store.getNote(q.id);
     $('#note-saved-badge').classList.add('hidden');
 
+    // Comments (Yikaobang style: show only after submitting answer or in memorize mode)
+    const commentsSection = $('#q-comments-section');
+    if (!isExam && (isMemorize || isGraded)) {
+      commentsSection.classList.remove('hidden');
+      renderComments(q.id);
+    } else {
+      commentsSection.classList.add('hidden');
+    }
+
     // Prev / Next buttons
     $('#quiz-prev-btn').disabled = s.cursor === 0;
     $('#quiz-next-btn').textContent = s.cursor === s.list.length - 1 ? (isExam ? '交卷' : '完成') : '下一题';
+  }
+
+  function renderComments(qid) {
+    const comments = Store.listComments(qid);
+    $('#comment-count').textContent = comments.length;
+    $('#comment-nick-label').textContent = Store.settings.nickname || '无线电爱好者';
+
+    const listEl = $('#q-comment-list');
+    if (!comments.length) {
+      listEl.innerHTML = '<div class="empty-state" style="padding:18px 8px;">暂无讨论，来发表第一条记忆口诀或解析吧！</div>';
+      return;
+    }
+
+    listEl.innerHTML = comments.map((c) => {
+      const liked = Store.isCommentLiked(c.id);
+      const initial = (c.author || '友').slice(0, 1).toUpperCase();
+      const timeStr = new Date(c.createdAt).toLocaleString('zh-CN', {
+        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+      return `
+        <div class="comment-item">
+          <div class="comment-item-top">
+            <span class="comment-author">
+              <span class="comment-avatar">${escapeHtml(initial)}</span>
+              <span>${escapeHtml(c.author)}</span>
+            </span>
+            <span class="comment-time">${timeStr}</span>
+          </div>
+          <div class="comment-body">${escapeHtml(c.text)}</div>
+          <div class="comment-item-foot">
+            ${c.isMine ? `<button class="btn btn-sm btn-ghost" data-del-comment="${c.id}">删除</button>` : ''}
+            <button class="comment-like-btn ${liked ? 'liked' : ''}" data-like-comment="${c.id}">
+              👍 <span>${c.likes || 0}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   function submitChoice(selectedStr) {
