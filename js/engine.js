@@ -56,6 +56,36 @@
     },
 
     /**
+     * Shuffle A/B/C/D options of a question and remap the answer letters
+     */
+    shuffleOptions(question) {
+      const letters = ['A', 'B', 'C', 'D'].filter((k) => question.options && question.options[k] !== undefined);
+      if (letters.length <= 1) return question;
+
+      const entries = letters.map((k) => ({ origKey: k, text: question.options[k] }));
+      const shuffled = this.shuffle(entries);
+
+      const newOptions = {};
+      const keyMap = {};
+      shuffled.forEach((item, idx) => {
+        const newKey = letters[idx];
+        newOptions[newKey] = item.text;
+        keyMap[item.origKey] = newKey;
+      });
+
+      const newAnswer = question.answer
+        .split('')
+        .map((k) => keyMap[k] || k)
+        .sort()
+        .join('');
+
+      return Object.assign({}, question, {
+        options: newOptions,
+        answer: newAnswer
+      });
+    },
+
+    /**
      * Normalize selected answer string (sorted uppercase letters, e.g. 'AC')
      */
     normalizeAnswer(selected) {

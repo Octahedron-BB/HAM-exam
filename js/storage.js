@@ -46,6 +46,7 @@
     order: 'seq',         // 'seq' | 'random'
     qtype: 'all',         // 'all' | 'single' | 'multi'
     autoRemoveWrong: true,
+    shuffleOptions: true,
     darkMode: false
   };
 

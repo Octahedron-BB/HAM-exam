@@ -524,11 +524,16 @@
     $('#stat-wrong').textContent = Store.getWrongIds().length;
     $('#stat-fav').textContent = Store.getFavoriteIds().length;
 
+    $('#setting-shuffle-options').checked = Store.settings.shuffleOptions !== false;
     $('#setting-auto-remove-wrong').checked = Boolean(Store.settings.autoRemoveWrong);
     $('#setting-dark-mode').checked = Boolean(Store.settings.darkMode);
   }
 
   function bindSettingsTab() {
+    $('#setting-shuffle-options').addEventListener('change', (e) => {
+      Store.saveSettings({ shuffleOptions: e.target.checked });
+    });
+
     $('#setting-auto-remove-wrong').addEventListener('change', (e) => {
       Store.saveSettings({ autoRemoveWrong: e.target.checked });
     });
@@ -582,13 +587,17 @@
 
   // --- QUIZ / MEMORIZE VIEW ---
   function startSession({ key, title, mode, list, startIdx = 0 }) {
+    const preparedList = Store.settings.shuffleOptions !== false
+      ? list.map((q) => Engine.shuffleOptions(q))
+      : list;
+
     state.session = {
       active: true,
       key,
       title,
       mode,
-      list,
-      cursor: Math.min(Math.max(0, startIdx), list.length - 1),
+      list: preparedList,
+      cursor: Math.min(Math.max(0, startIdx), preparedList.length - 1),
       results: {},
       multiDraft: new Set()
     };

@@ -1617,6 +1617,16 @@ code {
             <h2 class="section-title">偏好设置</h2>
             <div class="setting-row">
               <div>
+                <div class="setting-title">选项随机打乱（推荐开启）</div>
+                <div class="setting-desc">原题库单选答案均为 A，开启后每次刷题自动打乱 A/B/C/D 顺序</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="setting-shuffle-options" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
                 <div class="setting-title">做对后自动移出错题集</div>
                 <div class="setting-desc">在任意模式做对错题时自动将其从错题本移除</div>
               </div>
@@ -1903,6 +1913,7 @@ code {
     order: 'seq',         // 'seq' | 'random'
     qtype: 'all',         // 'all' | 'single' | 'multi'
     autoRemoveWrong: true,
+    shuffleOptions: true,
     darkMode: false
   };
 
@@ -2124,6 +2135,36 @@ code {
         arr[j] = tmp;
       }
       return arr;
+    },
+
+    /**
+     * Shuffle A/B/C/D options of a question and remap the answer letters
+     */
+    shuffleOptions(question) {
+      const letters = ['A', 'B', 'C', 'D'].filter((k) => question.options && question.options[k] !== undefined);
+      if (letters.length <= 1) return question;
+
+      const entries = letters.map((k) => ({ origKey: k, text: question.options[k] }));
+      const shuffled = this.shuffle(entries);
+
+      const newOptions = {};
+      const keyMap = {};
+      shuffled.forEach((item, idx) => {
+        const newKey = letters[idx];
+        newOptions[newKey] = item.text;
+        keyMap[item.origKey] = newKey;
+      });
+
+      const newAnswer = question.answer
+        .split('')
+        .map((k) => keyMap[k] || k)
+        .sort()
+        .join('');
+
+      return Object.assign({}, question, {
+        options: newOptions,
+        answer: newAnswer
+      });
     },
 
     /**
@@ -2733,11 +2774,16 @@ code {
     $('#stat-wrong').textContent = Store.getWrongIds().length;
     $('#stat-fav').textContent = Store.getFavoriteIds().length;
 
+    $('#setting-shuffle-options').checked = Store.settings.shuffleOptions !== false;
     $('#setting-auto-remove-wrong').checked = Boolean(Store.settings.autoRemoveWrong);
     $('#setting-dark-mode').checked = Boolean(Store.settings.darkMode);
   }
 
   function bindSettingsTab() {
+    $('#setting-shuffle-options').addEventListener('change', (e) => {
+      Store.saveSettings({ shuffleOptions: e.target.checked });
+    });
+
     $('#setting-auto-remove-wrong').addEventListener('change', (e) => {
       Store.saveSettings({ autoRemoveWrong: e.target.checked });
     });
@@ -2791,13 +2837,17 @@ code {
 
   // --- QUIZ / MEMORIZE VIEW ---
   function startSession({ key, title, mode, list, startIdx = 0 }) {
+    const preparedList = Store.settings.shuffleOptions !== false
+      ? list.map((q) => Engine.shuffleOptions(q))
+      : list;
+
     state.session = {
       active: true,
       key,
       title,
       mode,
-      list,
-      cursor: Math.min(Math.max(0, startIdx), list.length - 1),
+      list: preparedList,
+      cursor: Math.min(Math.max(0, startIdx), preparedList.length - 1),
       results: {},
       multiDraft: new Set()
     };
