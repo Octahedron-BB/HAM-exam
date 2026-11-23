@@ -36,72 +36,81 @@
       <view class="progress-fill" style="width: {{progressPercent}}"></view>
     </view>
 
-    <scroll-view scroll-y class="scroll-area">
-      <!-- 题干 + 选项 + 判分 -->
-      <view class="card q-card">
-        <view class="q-meta-row">
-          <view class="q-badges">
-            <text class="badge {{isMulti ? 'badge-multi' : ''}}">{{q.typeText}}</text>
-            <text wx:if="{{!isExam && isWrong}}" class="badge badge-warn">错题</text>
+    <scroll-view
+      scroll-y
+      enable-flex
+      scroll-top="{{scrollTop}}"
+      class="scroll-area"
+      bindtouchstart="onTouchStart"
+      bindtouchend="onTouchEnd"
+    >
+      <view class="scroll-inner">
+        <!-- 题干 + 选项 + 判分 -->
+        <view class="card q-card">
+          <view class="q-meta-row">
+            <view class="q-badges">
+              <text class="badge {{isMulti ? 'badge-multi' : ''}}">{{q.typeText}}</text>
+              <text wx:if="{{!isExam && isWrong}}" class="badge badge-warn">错题</text>
+            </view>
+            <text class="q-point mono">{{q.point}} · {{q.id}}</text>
           </view>
-          <text class="q-point mono">{{q.point}} · {{q.id}}</text>
-        </view>
 
-        <view class="q-stem">{{q.text}}</view>
+          <view class="q-stem">{{q.text}}</view>
 
-        <view class="q-options">
+          <view class="q-options">
+            <view
+              wx:for="{{options}}"
+              wx:key="key"
+              class="option-btn {{item.state}}"
+              data-key="{{item.key}}"
+              bindtap="onOptionTap"
+            >
+              <view class="option-key">{{item.key}}</view>
+              <view class="option-text">{{item.text}}</view>
+            </view>
+          </view>
+
+          <button
+            wx:if="{{!isExam && isMulti && !submitted}}"
+            class="btn-primary multi-submit"
+            bindtap="onSubmitMulti"
+            disabled="{{!canSubmitMulti}}"
+          >确认提交多选答案</button>
+
           <view
-            wx:for="{{options}}"
-            wx:key="key"
-            class="option-btn {{item.state}}"
-            data-key="{{item.key}}"
-            bindtap="onOptionTap"
+            wx:if="{{!isExam && submitted}}"
+            class="q-feedback {{isMemorize ? 'is-memorize' : (isCorrect ? 'is-correct' : 'is-wrong')}}"
           >
-            <view class="option-key">{{item.key}}</view>
-            <view class="option-text">{{item.text}}</view>
+            <block wx:if="{{isMemorize}}">
+              <text>背题模式 · 正确答案</text><text class="mono feedback-answer">{{answerText}}</text>
+            </block>
+            <block wx:elif="{{isCorrect}}">
+              <text>回答正确！</text><text class="mono feedback-answer">答案：{{answerText}}</text>
+            </block>
+            <block wx:else>
+              <text>回答错误（你选了 {{selectedText}}）</text><text class="mono feedback-answer">答案：{{answerText}}</text>
+            </block>
           </view>
         </view>
 
-        <button
-          wx:if="{{!isExam && isMulti && !submitted}}"
-          class="btn-primary multi-submit"
-          bindtap="onSubmitMulti"
-          disabled="{{!canSubmitMulti}}"
-        >确认提交多选答案</button>
-
-        <view
-          wx:if="{{!isExam && submitted}}"
-          class="q-feedback {{isMemorize ? 'is-memorize' : (isCorrect ? 'is-correct' : 'is-wrong')}}"
-        >
-          <block wx:if="{{isMemorize}}">
-            <text>背题模式 · 正确答案</text><text class="mono feedback-answer">{{answerText}}</text>
-          </block>
-          <block wx:elif="{{isCorrect}}">
-            <text>回答正确！</text><text class="mono feedback-answer">答案：{{answerText}}</text>
-          </block>
-          <block wx:else>
-            <text>回答错误（你选了 {{selectedText}}）</text><text class="mono feedback-answer">答案：{{answerText}}</text>
-          </block>
+        <!-- 随手笔记 -->
+        <view wx:if="{{!isExam}}" class="card note-card">
+          <view class="note-head">
+            <text class="note-title">随手笔记</text>
+            <text class="note-save" bindtap="onSaveNote">保存笔记</text>
+          </view>
+          <textarea
+            class="note-input"
+            value="{{noteText}}"
+            placeholder="记录这道题的记忆口诀、易错点或法规条文…"
+            maxlength="1000"
+            auto-height
+            cursor-spacing="40"
+            show-confirm-bar="{{false}}"
+            bindinput="onNoteInput"
+            bindblur="onNoteBlur"
+          />
         </view>
-      </view>
-
-      <!-- 随手笔记 -->
-      <view wx:if="{{!isExam}}" class="card note-card">
-        <view class="note-head">
-          <text class="note-title">随手笔记</text>
-          <text class="note-save" bindtap="onSaveNote">保存笔记</text>
-        </view>
-        <textarea
-          class="note-input"
-          value="{{noteText}}"
-          placeholder="记录这道题的记忆口诀、易错点或法规条文…"
-          maxlength="1000"
-          auto-height
-          cursor-spacing="40"
-          show-confirm-bar="{{false}}"
-          bindinput="onNoteInput"
-          bindblur="onNoteBlur"
-        />
       </view>
     </scroll-view>
 

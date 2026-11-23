@@ -50,6 +50,7 @@ Page({
     isWrong: false,
     showSheet: false,
     sheetItems: [],
+    scrollTop: 0,
     showResult: false,
     resultPassed: false,
     resultScore: 0,
@@ -275,6 +276,7 @@ Page({
       noteText,
       isFavorite: store.isFavorite(q.id),
       isWrong: store.isWrong(q.id),
+      scrollTop: 0,
       progressPercent: Math.round(((index + 1) / this.list.length) * 100) + '%'
     });
 
@@ -502,6 +504,23 @@ Page({
     this.saveNote(false);
     this.setData({ showSheet: false });
     this.goTo(idx);
+  },
+
+  onTouchStart(e) {
+    if (!e.touches || !e.touches.length) return;
+    this._touchX = e.touches[0].clientX;
+    this._touchY = e.touches[0].clientY;
+  },
+
+  onTouchEnd(e) {
+    if (this._touchX === undefined || !e.changedTouches || !e.changedTouches.length) return;
+    const dx = e.changedTouches[0].clientX - this._touchX;
+    const dy = e.changedTouches[0].clientY - this._touchY;
+    this._touchX = undefined;
+    if (Math.abs(dx) > 65 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      if (dx < 0) this.onNext();
+      else this.onPrev();
+    }
   },
 
   noop() {},

@@ -112,10 +112,14 @@ page {
 /* ---- 滚动区 ---- */
 .scroll-area {
   flex: 1;
+  height: 0;
   min-height: 0;
-  padding: 24rpx 28rpx;
+  width: 100%;
+}
+
+.scroll-inner {
+  padding: 24rpx 28rpx 40rpx;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 /* ---- 题干 ---- */
@@ -320,10 +324,13 @@ page {
 
 .flex1 {
   flex: 1;
+  width: auto !important;
+  min-width: 0 !important;
 }
 
 .sheet-btn {
-  width: 170rpx;
+  width: 170rpx !important;
+  min-width: 0 !important;
   flex-shrink: 0;
 }
 
