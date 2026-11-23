@@ -110,6 +110,12 @@ Page({
     });
   },
 
+  onOpenRecord(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/exam-detail/exam-detail?id=${id}` });
+  },
+
   onClearHistory() {
     if (!this.data.history.length) return;
     wx.showModal({

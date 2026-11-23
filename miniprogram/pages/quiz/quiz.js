@@ -424,6 +424,18 @@ Page({
     const elapsedSec = Math.max(1, Math.round((Date.now() - (this.examStartedAt || Date.now())) / 1000));
     const passed = score >= (this.examPassScore || 0);
 
+    const items = this.list.map((id) => {
+      const q = this.resolveQuestion(id);
+      const res = this.sessionResults[id] || {};
+      return {
+        id,
+        selected: this.examDraft[id] || '',
+        answer: q.answer,
+        isCorrect: Boolean(res.isCorrect),
+        options: q.options
+      };
+    });
+
     store.addExamRecord({
       id: Date.now(),
       title: this.data.title,
@@ -432,7 +444,8 @@ Page({
       passScore: this.examPassScore || 0,
       passed,
       durationSec: elapsedSec,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      items
     });
 
     this._examWrongIds = wrongIds;

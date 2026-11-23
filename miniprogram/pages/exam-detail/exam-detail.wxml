@@ -1,0 +1,75 @@
+<view class="page-wrap">
+  <view wx:if="{{loading}}" class="empty-state">加载中…</view>
+  <view wx:elif="{{!record}}" class="card empty-state">未找到该模考记录</view>
+
+  <block wx:else>
+    <!-- 成绩概览卡 -->
+    <view class="card summary-card">
+      <view class="summary-top">
+        <text class="badge {{record.passed ? '' : 'badge-warn'}}">{{record.passed ? 'PASS · 合格' : 'FAIL · 未及格'}}</text>
+        <text class="summary-date mono">{{dateStr}}</text>
+      </view>
+      <view class="summary-title">{{record.title}}</view>
+
+      <view class="summary-stats">
+        <view class="sum-box">
+          <view class="sum-val mono">{{record.score}}<text class="sum-sub">/{{record.total}}</text></view>
+          <view class="sum-lbl">最终得分</view>
+        </view>
+        <view class="sum-box">
+          <view class="sum-val mono">{{accuracy}}%</view>
+          <view class="sum-lbl">正确率</view>
+        </view>
+        <view class="sum-box">
+          <view class="sum-val mono">{{durationText}}</view>
+          <view class="sum-lbl">用时</view>
+        </view>
+      </view>
+
+      <view wx:if="{{hasItems}}" class="summary-actions">
+        <button wx:if="{{wrongCount > 0}}" class="btn-primary act-btn" bindtap="onReviewWrong">复盘错题 ({{wrongCount}})</button>
+        <button class="btn-secondary act-btn" bindtap="onRetryAll">重刷本套</button>
+      </view>
+    </view>
+
+    <!-- 逐题明细 -->
+    <view wx:if="{{!hasItems}}" class="card empty-state">
+      该记录为旧版本生成，暂未保存逐题作答明细
+    </view>
+
+    <block wx:else>
+      <view class="card filter-card">
+        <view class="segmented">
+          <view class="seg-btn {{filterIdx === 0 ? 'seg-btn-active' : ''}}" data-idx="0" bindtap="onFilterTap">全部 ({{totalCount}})</view>
+          <view class="seg-btn {{filterIdx === 1 ? 'seg-btn-active' : ''}}" data-idx="1" bindtap="onFilterTap">错题 ({{wrongCount}})</view>
+          <view class="seg-btn {{filterIdx === 2 ? 'seg-btn-active' : ''}}" data-idx="2" bindtap="onFilterTap">做对 ({{rightCount}})</view>
+        </view>
+      </view>
+
+      <view wx:for="{{visibleItems}}" wx:key="id" class="card detail-item">
+        <view class="detail-head">
+          <view class="detail-badges">
+            <text class="detail-num mono">#{{item.num}}</text>
+            <text class="badge {{item.isMulti ? 'badge-multi' : ''}}">{{item.typeText}}</text>
+            <text class="badge {{item.isCorrect ? '' : 'badge-warn'}}">{{item.isCorrect ? '正确' : '错误'}}</text>
+          </view>
+          <text class="detail-id mono">{{item.id}}</text>
+        </view>
+
+        <view class="detail-q">{{item.q}}</view>
+
+        <view class="detail-opts">
+          <view wx:for="{{item.optList}}" wx:for-item="opt" wx:key="key" class="detail-opt {{opt.cls}}">
+            <text class="detail-opt-key mono">{{opt.key}}.</text>
+            <text class="detail-opt-text">{{opt.text}}</text>
+          </view>
+        </view>
+
+        <view class="detail-ans-row">
+          <text class="ans-mine {{item.isCorrect ? 'ans-ok' : 'ans-bad'}}">你的作答：{{item.selected}}</text>
+          <text class="ans-right mono">正确答案：{{item.answer}}</text>
+        </view>
+      </view>
+    </block>
+  </block>
+</view>

@@ -111,11 +111,12 @@
     </view>
 
     <view wx:else class="hist-list">
-      <view wx:for="{{history}}" wx:key="id" class="hist-item">
+      <view wx:for="{{history}}" wx:key="id" class="hist-item" data-id="{{item.id}}" bindtap="onOpenRecord">
         <view class="hist-top">
           <text class="badge {{item.passed ? '' : 'badge-warn'}}">{{item.passed ? '合格' : '未及格'}}</text>
           <text class="hist-score mono">{{item.score}} / {{item.total}}</text>
           <text class="hist-meta mono">用时 {{item.durationText}} · {{item.dateStr}}</text>
+          <text class="hist-arrow">详情 ›</text>
         </view>
         <view class="hist-title">{{item.title}}</view>
       </view>

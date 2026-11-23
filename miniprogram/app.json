@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/syllabus/syllabus",
     "pages/exam/exam",
+    "pages/exam-detail/exam-detail",
     "pages/library/library",
     "pages/quiz/quiz",
     "pages/login/login"
