@@ -15,6 +15,8 @@
     activeTab: 'practice',
     syllabusLevel: Store.settings.level || 'A',
     libSubTab: 'wrong',
+    libBatchMode: false,
+    libSelected: new Set(),
     paperLevel: 'A',
     paperStrategy: 'random',
 
@@ -516,6 +518,8 @@
       const btn = e.target.closest('.seg-btn');
       if (!btn) return;
       state.libSubTab = btn.dataset.lib;
+      state.libBatchMode = false;
+      state.libSelected.clear();
       $$('#library-subtabs .seg-btn').forEach((b) => {
         b.classList.toggle('active', b.dataset.lib === state.libSubTab);
       });
@@ -533,118 +537,216 @@
     $('#lib-note-count').textContent = noteIds.length;
 
     const actionsEl = $('#library-actions');
+    const batchBarEl = $('#library-batch-bar');
     const listEl = $('#library-list');
 
+    const activeIds = state.libSubTab === 'wrong' ? wrongIds : state.libSubTab === 'fav' ? favIds : noteIds;
+    const qs = activeIds.map((id) => state.questionMap[id]).filter(Boolean);
+
+    // Prune stale selections
+    const validSet = new Set(qs.map((q) => q.id));
+    Array.from(state.libSelected).forEach((id) => {
+      if (!validSet.has(id)) state.libSelected.delete(id);
+    });
+
+    if (!qs.length) {
+      state.libBatchMode = false;
+      state.libSelected.clear();
+      actionsEl.innerHTML = '';
+      batchBarEl.classList.add('hidden');
+      const emptyMsg = state.libSubTab === 'wrong'
+        ? '暂无错题，继续保持！'
+        : state.libSubTab === 'fav'
+          ? '还没有收藏任何题目，刷题时点击右上角星标即可收藏'
+          : '还没有记过笔记，刷题时可在题目下方随时写笔记';
+      listEl.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
+      return;
+    }
+
+    const batchToggleBtn = `<button class="btn btn-sm ${state.libBatchMode ? 'btn-primary' : 'btn-secondary'}" id="lib-batch-toggle">${state.libBatchMode ? '完成管理' : '批量管理'}</button>`;
+
     if (state.libSubTab === 'wrong') {
-      const qs = wrongIds.map((id) => state.questionMap[id]).filter(Boolean);
-      actionsEl.innerHTML = qs.length ? `
+      actionsEl.innerHTML = `
         <button class="btn btn-sm btn-primary" id="lib-practice-wrong">刷错题 (${qs.length})</button>
         <button class="btn btn-sm btn-secondary" id="lib-memorize-wrong">背题复习</button>
-        <button class="btn btn-sm btn-danger-outline" id="lib-clear-wrong">清空错题</button>
-      ` : '';
-
-      if (!qs.length) {
-        listEl.innerHTML = '<div class="empty-state">暂无错题，继续保持！</div>';
-        return;
-      }
-
-      listEl.innerHTML = qs.map((q) => {
-        const info = Store.wrongBook[q.id] || {};
-        return `
-          <div class="lib-item">
-            <div class="lib-item-main" data-open-qid="${q.id}">
-              <div class="lib-item-meta">
-                <span class="badge badge-type ${q.type === 'multi' ? 'multi' : ''}">${q.type === 'multi' ? '多选' : '单选'}</span>
-                <span class="mono-id">${q.id}</span>
-                <span class="badge" style="background:var(--danger-soft);color:var(--danger);">错 ${info.count || 1} 次</span>
-                <span class="mono-id">[${q.p}]</span>
-              </div>
-              <div class="lib-item-q">${escapeHtml(q.q)}</div>
-            </div>
-            <button class="btn btn-sm btn-ghost" data-remove-wrong="${q.id}" title="移出错题集">移出</button>
-          </div>
-        `;
-      }).join('');
-
-      $('#lib-practice-wrong').onclick = () => startSession({ key: '', title: '错题集重练', mode: 'practice', list: qs, startIdx: 0 });
-      $('#lib-memorize-wrong').onclick = () => startSession({ key: '', title: '错题集背题', mode: 'memorize', list: qs, startIdx: 0 });
-      $('#lib-clear-wrong').onclick = async () => {
-        if (await showConfirm('清空错题集', '确定要清空所有错题记录吗？')) {
-          Store.clearWrongBook();
-          renderLibrary();
-          showToast('已清空错题集');
-        }
-      };
+        ${batchToggleBtn}
+      `;
     } else if (state.libSubTab === 'fav') {
-      const qs = favIds.map((id) => state.questionMap[id]).filter(Boolean);
-      actionsEl.innerHTML = qs.length ? `
+      actionsEl.innerHTML = `
         <button class="btn btn-sm btn-primary" id="lib-practice-fav">刷收藏题 (${qs.length})</button>
         <button class="btn btn-sm btn-secondary" id="lib-memorize-fav">背题复习</button>
-      ` : '';
+        ${batchToggleBtn}
+      `;
+    } else {
+      actionsEl.innerHTML = `
+        <button class="btn btn-sm btn-primary" id="lib-memorize-notes">浏览笔记 (${qs.length})</button>
+        ${batchToggleBtn}
+      `;
+    }
 
-      if (!qs.length) {
-        listEl.innerHTML = '<div class="empty-state">还没有收藏任何题目，刷题时点击右上角星标即可收藏</div>';
-        return;
+    $('#lib-batch-toggle').onclick = () => {
+      state.libBatchMode = !state.libBatchMode;
+      if (!state.libBatchMode) state.libSelected.clear();
+      renderLibrary();
+    };
+
+    // Batch Bar
+    if (state.libBatchMode) {
+      batchBarEl.classList.remove('hidden');
+      const allSelected = qs.length > 0 && state.libSelected.size === qs.length;
+      const selCount = state.libSelected.size;
+      let batchBtnsHtml = '';
+      if (state.libSubTab === 'wrong') {
+        batchBtnsHtml = `
+          <button class="btn btn-sm btn-primary" id="batch-practice-btn" ${selCount ? '' : 'disabled'}>刷所选(${selCount})</button>
+          <button class="btn btn-sm btn-secondary" id="batch-fav-btn" ${selCount ? '' : 'disabled'}>加入收藏</button>
+          <button class="btn btn-sm btn-danger-outline" id="batch-del-btn" ${selCount ? '' : 'disabled'}>批量移出</button>
+        `;
+      } else if (state.libSubTab === 'fav') {
+        batchBtnsHtml = `
+          <button class="btn btn-sm btn-primary" id="batch-practice-btn" ${selCount ? '' : 'disabled'}>刷所选(${selCount})</button>
+          <button class="btn btn-sm btn-danger-outline" id="batch-del-btn" ${selCount ? '' : 'disabled'}>取消收藏</button>
+        `;
+      } else {
+        batchBtnsHtml = `
+          <button class="btn btn-sm btn-primary" id="batch-practice-btn" ${selCount ? '' : 'disabled'}>复习所选(${selCount})</button>
+          <button class="btn btn-sm btn-danger-outline" id="batch-del-btn" ${selCount ? '' : 'disabled'}>清空笔记</button>
+        `;
       }
 
-      listEl.innerHTML = qs.map((q) => `
-        <div class="lib-item">
+      batchBarEl.innerHTML = `
+        <div class="batch-bar-left">
+          <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" class="lib-checkbox" id="batch-select-all" ${allSelected ? 'checked' : ''} style="margin-top:0;" />
+            <span>全选 (${selCount}/${qs.length})</span>
+          </label>
+        </div>
+        <div class="batch-bar-actions">${batchBtnsHtml}</div>
+      `;
+
+      $('#batch-select-all').onchange = (e) => {
+        if (e.target.checked) qs.forEach((q) => state.libSelected.add(q.id));
+        else state.libSelected.clear();
+        renderLibrary();
+      };
+
+      $('#batch-practice-btn').onclick = () => {
+        const picked = qs.filter((q) => state.libSelected.has(q.id));
+        if (!picked.length) return;
+        startSession({
+          key: '',
+          title: `所选${state.libSubTab === 'wrong' ? '错题' : state.libSubTab === 'fav' ? '收藏' : '笔记'} (${picked.length}题)`,
+          mode: state.libSubTab === 'notes' ? 'memorize' : 'practice',
+          list: picked,
+          startIdx: 0
+        });
+      };
+
+      const favBtn = $('#batch-fav-btn');
+      if (favBtn) {
+        favBtn.onclick = () => {
+          const ids = Array.from(state.libSelected);
+          Store.addFavoritesBatch(ids);
+          showToast(`已将 ${ids.length} 题加入收藏集`);
+          renderLibrary();
+        };
+      }
+
+      $('#batch-del-btn').onclick = async () => {
+        const ids = Array.from(state.libSelected);
+        if (!ids.length) return;
+        const label = state.libSubTab === 'wrong' ? '移出错题集' : state.libSubTab === 'fav' ? '取消收藏' : '清空笔记';
+        if (await showConfirm(`批量${label}`, `确定对选中的 ${ids.length} 道题目执行「${label}」吗？`)) {
+          if (state.libSubTab === 'wrong') Store.removeWrongBatch(ids);
+          else if (state.libSubTab === 'fav') Store.removeFavoritesBatch(ids);
+          else Store.deleteNotesBatch(ids);
+          state.libSelected.clear();
+          renderLibrary();
+          showToast(`已${label} ${ids.length} 题`);
+        }
+      };
+    } else {
+      batchBarEl.classList.add('hidden');
+      batchBarEl.innerHTML = '';
+    }
+
+    // List items
+    listEl.innerHTML = qs.map((q) => {
+      const checked = state.libSelected.has(q.id);
+      const checkboxHtml = state.libBatchMode
+        ? `<input type="checkbox" class="lib-checkbox" data-batch-id="${q.id}" ${checked ? 'checked' : ''} />`
+        : '';
+
+      let metaExtra = '';
+      let rightBtn = '';
+      let notePreview = '';
+
+      if (state.libSubTab === 'wrong') {
+        const info = Store.wrongBook[q.id] || {};
+        metaExtra = `<span class="badge" style="background:var(--danger-soft);color:var(--danger);">错 ${info.count || 1} 次</span>`;
+        if (!state.libBatchMode) rightBtn = `<button class="btn btn-sm btn-ghost" data-remove-wrong="${q.id}">移出</button>`;
+      } else if (state.libSubTab === 'fav') {
+        metaExtra = `<span class="mono-id">${q.levels.join('/')}</span>`;
+        if (!state.libBatchMode) rightBtn = `<button class="btn btn-sm btn-ghost" data-remove-fav="${q.id}">取消收藏</button>`;
+      } else {
+        notePreview = `<div class="lib-note-preview">${escapeHtml(Store.getNote(q.id))}</div>`;
+      }
+
+      return `
+        <div class="lib-item ${state.libBatchMode && checked ? 'batch-selected' : ''}">
+          ${checkboxHtml}
           <div class="lib-item-main" data-open-qid="${q.id}">
             <div class="lib-item-meta">
               <span class="badge badge-type ${q.type === 'multi' ? 'multi' : ''}">${q.type === 'multi' ? '多选' : '单选'}</span>
               <span class="mono-id">${q.id}</span>
+              ${metaExtra}
               <span class="mono-id">[${q.p}]</span>
-              <span class="mono-id">${q.levels.join('/')}</span>
             </div>
             <div class="lib-item-q">${escapeHtml(q.q)}</div>
+            ${notePreview}
           </div>
-          <button class="btn btn-sm btn-ghost" data-remove-fav="${q.id}">取消收藏</button>
+          ${rightBtn}
         </div>
-      `).join('');
+      `;
+    }).join('');
 
+    if (state.libSubTab === 'wrong') {
+      $('#lib-practice-wrong').onclick = () => startSession({ key: '', title: '错题集重练', mode: 'practice', list: qs, startIdx: 0 });
+      $('#lib-memorize-wrong').onclick = () => startSession({ key: '', title: '错题集背题', mode: 'memorize', list: qs, startIdx: 0 });
+    } else if (state.libSubTab === 'fav') {
       $('#lib-practice-fav').onclick = () => startSession({ key: '', title: '收藏集刷题', mode: 'practice', list: qs, startIdx: 0 });
       $('#lib-memorize-fav').onclick = () => startSession({ key: '', title: '收藏集背题', mode: 'memorize', list: qs, startIdx: 0 });
     } else {
-      const qs = noteIds.map((id) => state.questionMap[id]).filter(Boolean);
-      actionsEl.innerHTML = qs.length ? `
-        <button class="btn btn-sm btn-primary" id="lib-memorize-notes">浏览笔记题目 (${qs.length})</button>
-      ` : '';
-
-      if (!qs.length) {
-        listEl.innerHTML = '<div class="empty-state">还没有记过笔记，刷题时可在题目下方随时写笔记</div>';
-        return;
-      }
-
-      listEl.innerHTML = qs.map((q) => `
-        <div class="lib-item">
-          <div class="lib-item-main" data-open-qid="${q.id}">
-            <div class="lib-item-meta">
-              <span class="mono-id">${q.id}</span>
-              <span class="mono-id">[${q.p}]</span>
-            </div>
-            <div class="lib-item-q">${escapeHtml(q.q)}</div>
-            <div class="lib-note-preview">${escapeHtml(Store.getNote(q.id))}</div>
-          </div>
-        </div>
-      `).join('');
-
       $('#lib-memorize-notes').onclick = () => startSession({ key: '', title: '笔记题目复习', mode: 'memorize', list: qs, startIdx: 0 });
     }
 
-    // Bind item clicks
+    // Bind item clicks / batch checkboxes
     listEl.querySelectorAll('[data-open-qid]').forEach((el) => {
       el.addEventListener('click', () => {
         const qid = el.dataset.openQid;
-        const pool = (state.libSubTab === 'wrong' ? wrongIds : state.libSubTab === 'fav' ? favIds : noteIds)
-          .map((id) => state.questionMap[id]).filter(Boolean);
-        const idx = Math.max(0, pool.findIndex((q) => q.id === qid));
+        if (state.libBatchMode) {
+          if (state.libSelected.has(qid)) state.libSelected.delete(qid);
+          else state.libSelected.add(qid);
+          renderLibrary();
+          return;
+        }
+        const idx = Math.max(0, qs.findIndex((q) => q.id === qid));
         startSession({
           key: '',
           title: state.libSubTab === 'wrong' ? '错题集' : state.libSubTab === 'fav' ? '收藏集' : '我的笔记',
           mode: state.libSubTab === 'notes' ? 'memorize' : 'practice',
-          list: pool,
+          list: qs,
           startIdx: idx
         });
+      });
+    });
+
+    listEl.querySelectorAll('[data-batch-id]').forEach((chk) => {
+      chk.addEventListener('change', (e) => {
+        const qid = e.target.dataset.batchId;
+        if (e.target.checked) state.libSelected.add(qid);
+        else state.libSelected.delete(qid);
+        renderLibrary();
       });
     });
 
@@ -1129,6 +1231,65 @@
 
     $('#note-save-btn').addEventListener('click', () => saveNoteNow(true));
     $('#q-note-input').addEventListener('blur', () => saveNoteNow(false));
+
+    // Comments
+    $('#comment-post-btn').addEventListener('click', () => {
+      const q = getCurrentQuestion();
+      if (!q) return;
+      const input = $('#q-comment-input');
+      const item = Store.addComment(q.id, input.value);
+      if (!item) {
+        showToast('请输入评论内容');
+        return;
+      }
+      input.value = '';
+      renderComments(q.id);
+      showToast('评论已发表');
+    });
+
+    $('#q-comment-list').addEventListener('click', (e) => {
+      const q = getCurrentQuestion();
+      if (!q) return;
+      const likeBtn = e.target.closest('[data-like-comment]');
+      if (likeBtn) {
+        Store.toggleCommentLike(q.id, likeBtn.dataset.likeComment);
+        renderComments(q.id);
+        return;
+      }
+      const delBtn = e.target.closest('[data-del-comment]');
+      if (delBtn) {
+        Store.deleteComment(q.id, delBtn.dataset.delComment);
+        renderComments(q.id);
+        showToast('已删除评论');
+      }
+    });
+
+    $('#comment-nick-btn').addEventListener('click', () => {
+      const btn = $('#comment-nick-btn');
+      if (btn.dataset.editing === '1') return;
+      btn.dataset.editing = '1';
+      const cur = Store.settings.nickname || '无线电爱好者';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'text-input';
+      input.style.cssText = 'min-height:32px;padding:4px 10px;width:150px;font-size:13px;';
+      input.value = cur;
+      input.placeholder = '输入呼号或昵称';
+      btn.replaceWith(input);
+      input.focus();
+      const finishNick = () => {
+        const val = input.value.trim() || '无线电爱好者';
+        Store.saveSettings({ nickname: val });
+        input.replaceWith(btn);
+        btn.dataset.editing = '0';
+        $('#comment-nick-label').textContent = val;
+        showToast(`已设置昵称：${val}`);
+      };
+      input.addEventListener('blur', finishNick);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') input.blur();
+      });
+    });
 
     // Navigation
     $('#quiz-prev-btn').addEventListener('click', () => {

@@ -6,1585 +6,7 @@
   <meta name="theme-color" content="#0F766E" />
   <meta name="description" content="中国业余无线电台操作技术能力验证考试刷题系统：支持A/B/C类题库顺序随机刷题、单选多选题型、背题模式、考点专项、错题集、收藏集与随手笔记。" />
   <title>CQ · 业余无线电刷题系统</title>
-  <style>
-/* ============================================================
-   CQ · Amateur Radio Exam Prep — Design System & Styles
-   Mobile-first + Mini-program friendly + Desktop responsive
-   ============================================================ */
-
-:root {
-  --bg: #F5F7F9;
-  --surface: #FFFFFF;
-  --surface-muted: #F0F3F6;
-  --text: #111827;
-  --text-secondary: #4B5563;
-  --text-muted: #6B7280;
-  --border: #E5E7EB;
-  --border-strong: #D1D5DB;
-
-  --accent: #0F766E;
-  --accent-hover: #0D9488;
-  --accent-soft: #CCFBF1;
-  --accent-text: #0F766E;
-
-  --success: #059669;
-  --success-soft: #D1FAE5;
-  --danger: #DC2626;
-  --danger-soft: #FEE2E2;
-  --amber: #D97706;
-  --amber-soft: #FEF3C7;
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05);
-  --shadow-md: 0 4px 14px rgba(17, 24, 39, 0.08);
-  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-top: env(safe-area-inset-top, 0px);
-}
-
-html.dark {
-  --bg: #0F1419;
-  --surface: #1A2028;
-  --surface-muted: #232B35;
-  --text: #F3F4F6;
-  --text-secondary: #D1D5DB;
-  --text-muted: #9CA3AF;
-  --border: #2D3744;
-  --border-strong: #3E4C5E;
-
-  --accent: #14B8A6;
-  --accent-hover: #2DD4BF;
-  --accent-soft: rgba(20, 184, 166, 0.16);
-  --accent-text: #2DD4BF;
-
-  --success: #10B981;
-  --success-soft: rgba(16, 185, 129, 0.16);
-  --danger: #EF4444;
-  --danger-soft: rgba(239, 68, 68, 0.16);
-  --amber: #F59E0B;
-  --amber-soft: rgba(245, 158, 11, 0.16);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.35);
-}
-
-*, *::before, *::after {
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-
-button, input, textarea {
-  font-family: inherit;
-  color: inherit;
-}
-
-code {
-  font-family: var(--font-mono);
-  font-size: 0.88em;
-  background: var(--surface-muted);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* --- App Shell & Header --- */
-.app-shell {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.top-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding-top: var(--safe-top);
-}
-
-.header-inner {
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #FFFFFF;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.brand-text h1 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.brand-sub {
-  font-size: 11px;
-  color: var(--text-muted);
-  display: block;
-}
-
-.desktop-nav {
-  display: none;
-  gap: 6px;
-}
-
-.nav-btn {
-  border: none;
-  background: transparent;
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.nav-btn:hover {
-  background: var(--surface-muted);
-  color: var(--text);
-}
-
-.nav-btn.active {
-  background: var(--accent-soft);
-  color: var(--accent-text);
-  font-weight: 600;
-}
-
-.icon-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-secondary);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.icon-btn:hover {
-  background: var(--surface-muted);
-}
-
-/* --- Main Container --- */
-.main-container {
-  max-width: 1040px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 16px 16px calc(84px + var(--safe-bottom));
-  flex: 1;
-}
-
-.tab-panel {
-  display: none;
-}
-
-.tab-panel.active {
-  display: block;
-  animation: fadeIn 0.18s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.panel-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-/* --- Cards --- */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: var(--shadow-sm);
-}
-
-.card-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.wrap-row {
-  flex-wrap: wrap;
-}
-
-.section-title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.section-desc {
-  margin: 3px 0 0;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.mono-pill {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent-text);
-  white-space: nowrap;
-}
-
-/* --- Level Selector Grid --- */
-.level-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.level-card {
-  text-align: left;
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, transform 0.1s;
-}
-
-.level-card:hover {
-  border-color: var(--border-strong);
-}
-
-.level-card:active {
-  transform: scale(0.99);
-}
-
-.level-card.active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.level-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 4px;
-}
-
-.level-code {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.level-card.active .level-code {
-  color: var(--accent-text);
-}
-
-.level-count {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.level-name {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 10px;
-}
-
-.mini-progress {
-  height: 4px;
-  background: var(--border);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.mini-progress-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 999px;
-  transition: width 0.25s ease;
-}
-
-/* --- Config Controls & Segmented --- */
-.config-group {
-  margin-top: 14px;
-}
-
-.config-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.segmented {
-  display: flex;
-  background: var(--surface-muted);
-  padding: 4px;
-  border-radius: var(--radius-md);
-  gap: 4px;
-}
-
-.segmented.compact {
-  padding: 3px;
-}
-
-.seg-btn {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-}
-
-.segmented.compact .seg-btn {
-  padding: 6px 10px;
-  font-size: 12px;
-}
-
-.seg-btn.active {
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
-}
-
-.resume-hint {
-  margin-top: 14px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-muted);
-  font-size: 13px;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dot-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-  flex-shrink: 0;
-}
-
-.cta-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-/* --- Buttons --- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid transparent;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  min-height: 44px;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s, opacity 0.15s;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-.btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.btn-lg {
-  min-height: 48px;
-  font-size: 15px;
-}
-
-.btn-sm {
-  min-height: 34px;
-  padding: 6px 12px;
-  font-size: 13px;
-  border-radius: var(--radius-sm);
-}
-
-.btn-block {
-  width: 100%;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: #FFFFFF;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.btn-secondary {
-  background: var(--surface-muted);
-  color: var(--text);
-  border-color: var(--border);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  border-color: var(--border-strong);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-}
-
-.btn-ghost:hover {
-  background: var(--surface-muted);
-}
-
-.btn-danger-outline {
-  background: transparent;
-  color: var(--danger);
-  border-color: var(--danger);
-}
-
-.btn-danger-outline:hover {
-  background: var(--danger-soft);
-}
-
-.btn-wrap-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.file-btn {
-  position: relative;
-  overflow: hidden;
-}
-
-/* --- Quick Search --- */
-.search-bar-row {
-  display: flex;
-  gap: 8px;
-}
-
-.text-input {
-  flex: 1;
-  min-height: 44px;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.text-input:focus {
-  border-color: var(--accent);
-}
-
-.search-results {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 360px;
-  overflow-y: auto;
-}
-
-.search-item {
-  padding: 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-
-.search-item:hover {
-  border-color: var(--accent);
-}
-
-.search-item-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.search-item-q {
-  font-size: 14px;
-  color: var(--text);
-}
-
-/* --- Syllabus Tree --- */
-.syllabus-tree {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.chapter-box {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.chapter-header {
-  padding: 14px 16px;
-  background: var(--surface-muted);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.chapter-title-wrap {
-  flex: 1;
-}
-
-.chapter-title {
-  font-size: 15px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chapter-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.chapter-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-list {
-  display: none;
-  flex-direction: column;
-  border-top: 1px solid var(--border);
-}
-
-.chapter-box.open .section-list {
-  display: flex;
-}
-
-.section-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.section-item:last-child {
-  border-bottom: none;
-}
-
-.section-row-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.section-name {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.section-code {
-  font-family: var(--font-mono);
-  color: var(--accent-text);
-  margin-right: 6px;
-}
-
-.section-btns {
-  display: flex;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.subpoint-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.sub-chip {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.sub-chip:hover {
-  border-color: var(--accent);
-  color: var(--accent-text);
-}
-
-/* --- Library (Wrong / Favorites / Notes) --- */
-.lib-header {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.lib-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.library-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.lib-item {
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.lib-item-main {
-  flex: 1;
-  cursor: pointer;
-}
-
-.lib-item-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  font-size: 12px;
-}
-
-.lib-item-q {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.lib-note-preview {
-  margin-top: 8px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  background: var(--amber-soft);
-  color: var(--text);
-  font-size: 13px;
-  white-space: pre-wrap;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 16px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-/* --- Stats & Settings --- */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.stat-box {
-  padding: 14px;
-  border-radius: var(--radius-md);
-  background: var(--surface-muted);
-  text-align: center;
-}
-
-.stat-val {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--accent-text);
-}
-
-.stat-lbl {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.setting-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.setting-row:last-child {
-  border-bottom: none;
-}
-
-.setting-title {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.setting-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-/* Toggle Switch */
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 46px;
-  height: 26px;
-  flex-shrink: 0;
-}
-
-.switch input { opacity: 0; width: 0; height: 0; }
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background: var(--border-strong);
-  border-radius: 999px;
-  transition: 0.2s;
-}
-
-.slider::before {
-  content: "";
-  position: absolute;
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background: #FFFFFF;
-  border-radius: 50%;
-  transition: 0.2s;
-}
-
-.switch input:checked + .slider {
-  background: var(--accent);
-}
-
-.switch input:checked + .slider::before {
-  transform: translateX(20px);
-}
-
-/* --- Mobile Bottom Tabbar --- */
-.mobile-tabbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 30;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  padding-bottom: var(--safe-bottom);
-}
-
-.tabbar-item {
-  border: none;
-  background: transparent;
-  padding: 8px 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.tabbar-item.active {
-  color: var(--accent-text);
-  font-weight: 600;
-}
-
-/* --- QUIZ / MEMORIZE OVERLAY VIEW --- */
-.quiz-view {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-}
-
-.quiz-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: calc(10px + var(--safe-top)) 14px 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.icon-text-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  background: transparent;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 6px 4px;
-}
-
-.quiz-title-wrap {
-  text-align: center;
-  flex: 1;
-  min-width: 0;
-}
-
-.quiz-session-title {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.quiz-counter {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.mono-text {
-  font-family: var(--font-mono);
-}
-
-.mode-pill {
-  display: inline-flex;
-  background: var(--surface-muted);
-  padding: 3px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-}
-
-.mode-pill-btn {
-  border: none;
-  background: transparent;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-
-.mode-pill-btn.active {
-  background: var(--accent);
-  color: #FFFFFF;
-}
-
-.quiz-progress-bar {
-  height: 3px;
-  background: var(--border);
-}
-
-.quiz-progress-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width 0.2s ease;
-}
-
-.quiz-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-  max-width: 780px;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.q-meta-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.q-badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-
-.badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-}
-
-.badge-type {
-  background: var(--accent-soft);
-  color: var(--accent-text);
-}
-
-.badge-type.multi {
-  background: var(--amber-soft);
-  color: var(--amber);
-}
-
-.badge-level {
-  font-family: var(--font-mono);
-  background: var(--surface-muted);
-  color: var(--text-secondary);
-}
-
-.badge-syllabus {
-  font-family: var(--font-mono);
-  background: var(--surface-muted);
-  color: var(--text-muted);
-}
-
-.mono-id {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.fav-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-muted);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.fav-btn.active {
-  color: var(--amber);
-  border-color: var(--amber);
-  background: var(--amber-soft);
-}
-
-.fav-btn.active svg {
-  fill: var(--amber);
-}
-
-.q-stem {
-  margin: 0 0 16px;
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 1.6;
-}
-
-.q-figure-box {
-  margin-bottom: 14px;
-  padding: 12px;
-  border-radius: var(--radius-md);
-  border: 1px dashed var(--border-strong);
-  background: var(--surface-muted);
-  font-size: 13px;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-.q-figure-box img {
-  max-width: 100%;
-  border-radius: var(--radius-sm);
-  display: block;
-  margin: 0 auto 6px;
-}
-
-.q-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.option-btn {
-  width: 100%;
-  text-align: left;
-  padding: 13px 14px;
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  cursor: pointer;
-  font-size: 15px;
-  line-height: 1.5;
-  transition: border-color 0.12s, background 0.12s;
-}
-
-.option-btn:hover:not(:disabled) {
-  border-color: var(--border-strong);
-  background: var(--surface-muted);
-}
-
-.option-key {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border-strong);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.option-btn.selected {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.option-btn.selected .option-key {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #FFFFFF;
-}
-
-.option-btn.correct {
-  border-color: var(--success);
-  background: var(--success-soft);
-}
-
-.option-btn.correct .option-key {
-  background: var(--success);
-  border-color: var(--success);
-  color: #FFFFFF;
-}
-
-.option-btn.wrong {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-}
-
-.option-btn.wrong .option-key {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: #FFFFFF;
-}
-
-.q-multi-submit {
-  margin-top: 14px;
-}
-
-.q-feedback {
-  margin-top: 14px;
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.q-feedback.is-correct {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.q-feedback.is-wrong {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
-.q-feedback.is-memorize {
-  background: var(--accent-soft);
-  color: var(--accent-text);
-}
-
-/* --- Note Card --- */
-.note-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.note-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.note-saved-badge {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.note-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  font-size: 14px;
-  line-height: 1.5;
-  resize: vertical;
-  outline: none;
-}
-
-.note-textarea:focus {
-  border-color: var(--accent);
-}
-
-/* --- Quiz Footer --- */
-.quiz-footer {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: 10px 16px calc(10px + var(--safe-bottom));
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 10px;
-  max-width: 100%;
-}
-
-/* --- Modals & Toast --- */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.modal-sheet {
-  background: var(--surface);
-  width: 100%;
-  max-width: 640px;
-  max-height: 78vh;
-  border-radius: 18px 18px 0 0;
-  padding: 16px 16px calc(20px + var(--safe-bottom));
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.modal-dialog {
-  background: var(--surface);
-  width: calc(100% - 32px);
-  max-width: 400px;
-  margin: auto;
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  box-shadow: var(--shadow-md);
-}
-
-.modal-dialog h3 {
-  margin: 0 0 8px;
-  font-size: 17px;
-}
-
-.modal-dialog p {
-  margin: 0 0 18px;
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.sheet-legend {
-  display: flex;
-  gap: 14px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.sheet-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  display: inline-block;
-}
-
-.legend-dot.current { border: 2px solid var(--accent); }
-.legend-dot.correct { background: var(--success); }
-.legend-dot.wrong { background: var(--danger); }
-.legend-dot.todo { background: var(--surface-muted); border: 1px solid var(--border-strong); }
-
-.sheet-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
-  gap: 8px;
-  overflow-y: auto;
-  padding: 4px 2px;
-}
-
-.sheet-num {
-  height: 40px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface-muted);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.sheet-num.current {
-  border: 2px solid var(--accent);
-  color: var(--accent-text);
-}
-
-.sheet-num.correct {
-  background: var(--success-soft);
-  border-color: var(--success);
-  color: var(--success);
-}
-
-.sheet-num.wrong {
-  background: var(--danger-soft);
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
-.toast {
-  position: fixed;
-  top: calc(18px + var(--safe-top));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  background: #111827;
-  color: #FFFFFF;
-  padding: 10px 18px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 500;
-  box-shadow: var(--shadow-md);
-}
-
-/* --- Desktop Breakpoints --- */
-@media (min-width: 768px) {
-  .desktop-nav {
-    display: flex;
-  }
-
-  .mobile-tabbar {
-    display: none;
-  }
-
-  .main-container {
-    padding: 24px 20px 48px;
-  }
-
-  .panel-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-  }
-
-  .cta-row {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .lib-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-backdrop {
-    align-items: center;
-  }
-
-  .modal-sheet {
-    border-radius: var(--radius-lg);
-    max-height: 70vh;
-  }
-
-  .quiz-footer {
-    max-width: 780px;
-    width: 100%;
-    margin: 0 auto 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-  }
-}
-
-/* --- Mock Exam & Custom Paper Builder --- */
-.mock-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-@media (min-width: 768px) {
-  .mock-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.mock-card {
-  padding: 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.mock-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.mock-meta {
-  font-size: 13px;
-  color: var(--text-secondary);
-  flex: 1;
-}
-
-.paper-counts-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  align-items: end;
-}
-
-.paper-counts-row .text-input {
-  width: 100%;
-  min-width: 0;
-}
-
-.chapter-checks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip-check {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.chip-check input {
-  accent-color: var(--accent);
-}
-
-.exam-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.exam-timer {
-  font-size: 13px;
-  font-weight: 700;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--surface-muted);
-  border: 1px solid var(--border);
-}
-
-.exam-timer.urgent {
-  color: var(--danger);
-  border-color: var(--danger);
-  background: var(--danger-soft);
-}
-
-.sheet-num.answered {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent-text);
-}
-
-.result-dialog {
-  text-align: center;
-}
-
-.result-header {
-  margin-bottom: 14px;
-}
-
-.result-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 999px;
-  margin-bottom: 8px;
-}
-
-.result-badge.pass {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.result-badge.fail {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
-.result-score-box {
-  padding: 16px;
-  border-radius: var(--radius-md);
-  background: var(--surface-muted);
-  margin-bottom: 16px;
-}
-
-.result-score {
-  font-size: 38px;
-  font-weight: 700;
-  color: var(--accent-text);
-  line-height: 1.1;
-}
-
-.result-score small {
-  font-size: 16px;
-  color: var(--text-muted);
-  margin-left: 4px;
-}
-
-.result-sub {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-.result-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-
-</style>
+  <link rel="stylesheet" href="styles.css?v=20261123c" />
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -1852,6 +274,7 @@ code {
             </div>
             <div id="library-actions" class="lib-actions"></div>
           </div>
+          <div id="library-batch-bar" class="batch-bar hidden"></div>
           <div id="library-list" class="library-list"></div>
         </div>
       </section>
@@ -2024,6 +447,27 @@ code {
             <button id="note-save-btn" class="btn btn-sm btn-secondary">保存笔记</button>
           </div>
           <textarea id="q-note-input" class="note-textarea" rows="3" placeholder="记录这道题的记忆口诀、易错点或法规条文...（支持失去焦点自动保存）"></textarea>
+        </section>
+
+        <!-- Comments Section (Shown after submitting answer or in memorize mode) -->
+        <section id="q-comments-section" class="comment-card card hidden">
+          <div class="comment-header">
+            <div class="note-title-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <span>题友讨论 (<span id="comment-count">0</span>)</span>
+            </div>
+            <button id="comment-nick-btn" class="btn btn-sm btn-ghost" title="设置呼号或昵称">
+              呼号/昵称：<span id="comment-nick-label">无线电爱好者</span>
+            </button>
+          </div>
+          <div class="comment-compose">
+            <textarea id="q-comment-input" class="note-textarea" rows="2" placeholder="分享你的记忆口诀、解题思路或易错提醒..."></textarea>
+            <div class="comment-compose-actions">
+              <span class="section-desc">提示：小程序上线后将接入云开发实现全网题友互通</span>
+              <button id="comment-post-btn" class="btn btn-sm btn-primary">发表评论</button>
+            </div>
+          </div>
+          <div id="q-comment-list" class="comment-list"></div>
         </section>
       </main>
 
@@ -2209,7 +653,8 @@ code {
     qtype: 'all',         // 'all' | 'single' | 'multi'
     autoRemoveWrong: true,
     shuffleOptions: true,
-    darkMode: false
+    darkMode: false,
+    nickname: '无线电爱好者'
   };
 
   class ExamStore {
@@ -2220,6 +665,9 @@ code {
       this.notes = driver.get('notes', {});
       this.answered = driver.get('answered', {});     // { [qid]: { correct, lastSelected, updatedAt } }
       this.sessions = driver.get('sessions', {});     // { [sessionKey]: { cursor, orderIds? } }
+      this.examHistory = driver.get('exam_history', []);
+      this.comments = driver.get('comments', {});
+      this.commentLikes = driver.get('comment_likes', {});
     }
 
     saveSettings(partial) {
@@ -2379,6 +827,83 @@ code {
       driver.set('answered', this.answered);
       driver.set('sessions', this.sessions);
       driver.set('exam_history', this.examHistory);
+    }
+
+    // --- Batch Management (Wrong / Favorites / Notes) ---
+    removeWrongBatch(qids) {
+      qids.forEach((id) => { delete this.wrongBook[id]; });
+      driver.set('wrong_book', this.wrongBook);
+    }
+
+    addFavoritesBatch(qids) {
+      const now = Date.now();
+      qids.forEach((id) => {
+        if (!this.favorites[id]) this.favorites[id] = now;
+      });
+      driver.set('favorites', this.favorites);
+    }
+
+    removeFavoritesBatch(qids) {
+      qids.forEach((id) => { delete this.favorites[id]; });
+      driver.set('favorites', this.favorites);
+    }
+
+    deleteNotesBatch(qids) {
+      qids.forEach((id) => { delete this.notes[id]; });
+      driver.set('notes', this.notes);
+    }
+
+    // --- Comments Service (CloudBase-Ready Adapter) ---
+    // In WeChat Mini Program CloudBase, replace these methods with:
+    // wx.cloud.database().collection('comments').where({ qid }).get() / add() / doc(id).update()
+    listComments(qid) {
+      const list = this.comments[qid] ? this.comments[qid].slice() : [];
+      return list.sort((a, b) => (b.likes || 0) - (a.likes || 0) || (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    addComment(qid, text, author) {
+      const trimmed = (text || '').trim();
+      if (!trimmed) return null;
+      if (!this.comments[qid]) this.comments[qid] = [];
+      const item = {
+        id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        author: (author || this.settings.nickname || '无线电爱好者').trim(),
+        text: trimmed,
+        likes: 0,
+        createdAt: Date.now(),
+        isMine: true
+      };
+      this.comments[qid].unshift(item);
+      driver.set('comments', this.comments);
+      return item;
+    }
+
+    toggleCommentLike(qid, commentId) {
+      const list = this.comments[qid];
+      if (!list) return false;
+      const target = list.find((c) => c.id === commentId);
+      if (!target) return false;
+
+      if (this.commentLikes[commentId]) {
+        delete this.commentLikes[commentId];
+        target.likes = Math.max(0, (target.likes || 1) - 1);
+      } else {
+        this.commentLikes[commentId] = true;
+        target.likes = (target.likes || 0) + 1;
+      }
+      driver.set('comments', this.comments);
+      driver.set('comment_likes', this.commentLikes);
+      return Boolean(this.commentLikes[commentId]);
+    }
+
+    isCommentLiked(commentId) {
+      return Boolean(this.commentLikes[commentId]);
+    }
+
+    deleteComment(qid, commentId) {
+      if (!this.comments[qid]) return;
+      this.comments[qid] = this.comments[qid].filter((c) => c.id !== commentId);
+      driver.set('comments', this.comments);
     }
 
     resetProgress() {
@@ -2613,6 +1138,8 @@ code {
     activeTab: 'practice',
     syllabusLevel: Store.settings.level || 'A',
     libSubTab: 'wrong',
+    libBatchMode: false,
+    libSelected: new Set(),
     paperLevel: 'A',
     paperStrategy: 'random',
 
@@ -3123,6 +1650,8 @@ code {
       const btn = e.target.closest('.seg-btn');
       if (!btn) return;
       state.libSubTab = btn.dataset.lib;
+      state.libBatchMode = false;
+      state.libSelected.clear();
       $$('#library-subtabs .seg-btn').forEach((b) => {
         b.classList.toggle('active', b.dataset.lib === state.libSubTab);
       });
@@ -3140,118 +1669,216 @@ code {
     $('#lib-note-count').textContent = noteIds.length;
 
     const actionsEl = $('#library-actions');
+    const batchBarEl = $('#library-batch-bar');
     const listEl = $('#library-list');
 
+    const activeIds = state.libSubTab === 'wrong' ? wrongIds : state.libSubTab === 'fav' ? favIds : noteIds;
+    const qs = activeIds.map((id) => state.questionMap[id]).filter(Boolean);
+
+    // Prune stale selections
+    const validSet = new Set(qs.map((q) => q.id));
+    Array.from(state.libSelected).forEach((id) => {
+      if (!validSet.has(id)) state.libSelected.delete(id);
+    });
+
+    if (!qs.length) {
+      state.libBatchMode = false;
+      state.libSelected.clear();
+      actionsEl.innerHTML = '';
+      batchBarEl.classList.add('hidden');
+      const emptyMsg = state.libSubTab === 'wrong'
+        ? '暂无错题，继续保持！'
+        : state.libSubTab === 'fav'
+          ? '还没有收藏任何题目，刷题时点击右上角星标即可收藏'
+          : '还没有记过笔记，刷题时可在题目下方随时写笔记';
+      listEl.innerHTML = `<div class="empty-state">${emptyMsg}</div>`;
+      return;
+    }
+
+    const batchToggleBtn = `<button class="btn btn-sm ${state.libBatchMode ? 'btn-primary' : 'btn-secondary'}" id="lib-batch-toggle">${state.libBatchMode ? '完成管理' : '批量管理'}</button>`;
+
     if (state.libSubTab === 'wrong') {
-      const qs = wrongIds.map((id) => state.questionMap[id]).filter(Boolean);
-      actionsEl.innerHTML = qs.length ? `
+      actionsEl.innerHTML = `
         <button class="btn btn-sm btn-primary" id="lib-practice-wrong">刷错题 (${qs.length})</button>
         <button class="btn btn-sm btn-secondary" id="lib-memorize-wrong">背题复习</button>
-        <button class="btn btn-sm btn-danger-outline" id="lib-clear-wrong">清空错题</button>
-      ` : '';
-
-      if (!qs.length) {
-        listEl.innerHTML = '<div class="empty-state">暂无错题，继续保持！</div>';
-        return;
-      }
-
-      listEl.innerHTML = qs.map((q) => {
-        const info = Store.wrongBook[q.id] || {};
-        return `
-          <div class="lib-item">
-            <div class="lib-item-main" data-open-qid="${q.id}">
-              <div class="lib-item-meta">
-                <span class="badge badge-type ${q.type === 'multi' ? 'multi' : ''}">${q.type === 'multi' ? '多选' : '单选'}</span>
-                <span class="mono-id">${q.id}</span>
-                <span class="badge" style="background:var(--danger-soft);color:var(--danger);">错 ${info.count || 1} 次</span>
-                <span class="mono-id">[${q.p}]</span>
-              </div>
-              <div class="lib-item-q">${escapeHtml(q.q)}</div>
-            </div>
-            <button class="btn btn-sm btn-ghost" data-remove-wrong="${q.id}" title="移出错题集">移出</button>
-          </div>
-        `;
-      }).join('');
-
-      $('#lib-practice-wrong').onclick = () => startSession({ key: '', title: '错题集重练', mode: 'practice', list: qs, startIdx: 0 });
-      $('#lib-memorize-wrong').onclick = () => startSession({ key: '', title: '错题集背题', mode: 'memorize', list: qs, startIdx: 0 });
-      $('#lib-clear-wrong').onclick = async () => {
-        if (await showConfirm('清空错题集', '确定要清空所有错题记录吗？')) {
-          Store.clearWrongBook();
-          renderLibrary();
-          showToast('已清空错题集');
-        }
-      };
+        ${batchToggleBtn}
+      `;
     } else if (state.libSubTab === 'fav') {
-      const qs = favIds.map((id) => state.questionMap[id]).filter(Boolean);
-      actionsEl.innerHTML = qs.length ? `
+      actionsEl.innerHTML = `
         <button class="btn btn-sm btn-primary" id="lib-practice-fav">刷收藏题 (${qs.length})</button>
         <button class="btn btn-sm btn-secondary" id="lib-memorize-fav">背题复习</button>
-      ` : '';
+        ${batchToggleBtn}
+      `;
+    } else {
+      actionsEl.innerHTML = `
+        <button class="btn btn-sm btn-primary" id="lib-memorize-notes">浏览笔记 (${qs.length})</button>
+        ${batchToggleBtn}
+      `;
+    }
 
-      if (!qs.length) {
-        listEl.innerHTML = '<div class="empty-state">还没有收藏任何题目，刷题时点击右上角星标即可收藏</div>';
-        return;
+    $('#lib-batch-toggle').onclick = () => {
+      state.libBatchMode = !state.libBatchMode;
+      if (!state.libBatchMode) state.libSelected.clear();
+      renderLibrary();
+    };
+
+    // Batch Bar
+    if (state.libBatchMode) {
+      batchBarEl.classList.remove('hidden');
+      const allSelected = qs.length > 0 && state.libSelected.size === qs.length;
+      const selCount = state.libSelected.size;
+      let batchBtnsHtml = '';
+      if (state.libSubTab === 'wrong') {
+        batchBtnsHtml = `
+          <button class="btn btn-sm btn-primary" id="batch-practice-btn" ${selCount ? '' : 'disabled'}>刷所选(${selCount})</button>
+          <button class="btn btn-sm btn-secondary" id="batch-fav-btn" ${selCount ? '' : 'disabled'}>加入收藏</button>
+          <button class="btn btn-sm btn-danger-outline" id="batch-del-btn" ${selCount ? '' : 'disabled'}>批量移出</button>
+        `;
+      } else if (state.libSubTab === 'fav') {
+        batchBtnsHtml = `
+          <button class="btn btn-sm btn-primary" id="batch-practice-btn" ${selCount ? '' : 'disabled'}>刷所选(${selCount})</button>
+          <button class="btn btn-sm btn-danger-outline" id="batch-del-btn" ${selCount ? '' : 'disabled'}>取消收藏</button>
+        `;
+      } else {
+        batchBtnsHtml = `
+          <button class="btn btn-sm btn-primary" id="batch-practice-btn" ${selCount ? '' : 'disabled'}>复习所选(${selCount})</button>
+          <button class="btn btn-sm btn-danger-outline" id="batch-del-btn" ${selCount ? '' : 'disabled'}>清空笔记</button>
+        `;
       }
 
-      listEl.innerHTML = qs.map((q) => `
-        <div class="lib-item">
+      batchBarEl.innerHTML = `
+        <div class="batch-bar-left">
+          <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;">
+            <input type="checkbox" class="lib-checkbox" id="batch-select-all" ${allSelected ? 'checked' : ''} style="margin-top:0;" />
+            <span>全选 (${selCount}/${qs.length})</span>
+          </label>
+        </div>
+        <div class="batch-bar-actions">${batchBtnsHtml}</div>
+      `;
+
+      $('#batch-select-all').onchange = (e) => {
+        if (e.target.checked) qs.forEach((q) => state.libSelected.add(q.id));
+        else state.libSelected.clear();
+        renderLibrary();
+      };
+
+      $('#batch-practice-btn').onclick = () => {
+        const picked = qs.filter((q) => state.libSelected.has(q.id));
+        if (!picked.length) return;
+        startSession({
+          key: '',
+          title: `所选${state.libSubTab === 'wrong' ? '错题' : state.libSubTab === 'fav' ? '收藏' : '笔记'} (${picked.length}题)`,
+          mode: state.libSubTab === 'notes' ? 'memorize' : 'practice',
+          list: picked,
+          startIdx: 0
+        });
+      };
+
+      const favBtn = $('#batch-fav-btn');
+      if (favBtn) {
+        favBtn.onclick = () => {
+          const ids = Array.from(state.libSelected);
+          Store.addFavoritesBatch(ids);
+          showToast(`已将 ${ids.length} 题加入收藏集`);
+          renderLibrary();
+        };
+      }
+
+      $('#batch-del-btn').onclick = async () => {
+        const ids = Array.from(state.libSelected);
+        if (!ids.length) return;
+        const label = state.libSubTab === 'wrong' ? '移出错题集' : state.libSubTab === 'fav' ? '取消收藏' : '清空笔记';
+        if (await showConfirm(`批量${label}`, `确定对选中的 ${ids.length} 道题目执行「${label}」吗？`)) {
+          if (state.libSubTab === 'wrong') Store.removeWrongBatch(ids);
+          else if (state.libSubTab === 'fav') Store.removeFavoritesBatch(ids);
+          else Store.deleteNotesBatch(ids);
+          state.libSelected.clear();
+          renderLibrary();
+          showToast(`已${label} ${ids.length} 题`);
+        }
+      };
+    } else {
+      batchBarEl.classList.add('hidden');
+      batchBarEl.innerHTML = '';
+    }
+
+    // List items
+    listEl.innerHTML = qs.map((q) => {
+      const checked = state.libSelected.has(q.id);
+      const checkboxHtml = state.libBatchMode
+        ? `<input type="checkbox" class="lib-checkbox" data-batch-id="${q.id}" ${checked ? 'checked' : ''} />`
+        : '';
+
+      let metaExtra = '';
+      let rightBtn = '';
+      let notePreview = '';
+
+      if (state.libSubTab === 'wrong') {
+        const info = Store.wrongBook[q.id] || {};
+        metaExtra = `<span class="badge" style="background:var(--danger-soft);color:var(--danger);">错 ${info.count || 1} 次</span>`;
+        if (!state.libBatchMode) rightBtn = `<button class="btn btn-sm btn-ghost" data-remove-wrong="${q.id}">移出</button>`;
+      } else if (state.libSubTab === 'fav') {
+        metaExtra = `<span class="mono-id">${q.levels.join('/')}</span>`;
+        if (!state.libBatchMode) rightBtn = `<button class="btn btn-sm btn-ghost" data-remove-fav="${q.id}">取消收藏</button>`;
+      } else {
+        notePreview = `<div class="lib-note-preview">${escapeHtml(Store.getNote(q.id))}</div>`;
+      }
+
+      return `
+        <div class="lib-item ${state.libBatchMode && checked ? 'batch-selected' : ''}">
+          ${checkboxHtml}
           <div class="lib-item-main" data-open-qid="${q.id}">
             <div class="lib-item-meta">
               <span class="badge badge-type ${q.type === 'multi' ? 'multi' : ''}">${q.type === 'multi' ? '多选' : '单选'}</span>
               <span class="mono-id">${q.id}</span>
+              ${metaExtra}
               <span class="mono-id">[${q.p}]</span>
-              <span class="mono-id">${q.levels.join('/')}</span>
             </div>
             <div class="lib-item-q">${escapeHtml(q.q)}</div>
+            ${notePreview}
           </div>
-          <button class="btn btn-sm btn-ghost" data-remove-fav="${q.id}">取消收藏</button>
+          ${rightBtn}
         </div>
-      `).join('');
+      `;
+    }).join('');
 
+    if (state.libSubTab === 'wrong') {
+      $('#lib-practice-wrong').onclick = () => startSession({ key: '', title: '错题集重练', mode: 'practice', list: qs, startIdx: 0 });
+      $('#lib-memorize-wrong').onclick = () => startSession({ key: '', title: '错题集背题', mode: 'memorize', list: qs, startIdx: 0 });
+    } else if (state.libSubTab === 'fav') {
       $('#lib-practice-fav').onclick = () => startSession({ key: '', title: '收藏集刷题', mode: 'practice', list: qs, startIdx: 0 });
       $('#lib-memorize-fav').onclick = () => startSession({ key: '', title: '收藏集背题', mode: 'memorize', list: qs, startIdx: 0 });
     } else {
-      const qs = noteIds.map((id) => state.questionMap[id]).filter(Boolean);
-      actionsEl.innerHTML = qs.length ? `
-        <button class="btn btn-sm btn-primary" id="lib-memorize-notes">浏览笔记题目 (${qs.length})</button>
-      ` : '';
-
-      if (!qs.length) {
-        listEl.innerHTML = '<div class="empty-state">还没有记过笔记，刷题时可在题目下方随时写笔记</div>';
-        return;
-      }
-
-      listEl.innerHTML = qs.map((q) => `
-        <div class="lib-item">
-          <div class="lib-item-main" data-open-qid="${q.id}">
-            <div class="lib-item-meta">
-              <span class="mono-id">${q.id}</span>
-              <span class="mono-id">[${q.p}]</span>
-            </div>
-            <div class="lib-item-q">${escapeHtml(q.q)}</div>
-            <div class="lib-note-preview">${escapeHtml(Store.getNote(q.id))}</div>
-          </div>
-        </div>
-      `).join('');
-
       $('#lib-memorize-notes').onclick = () => startSession({ key: '', title: '笔记题目复习', mode: 'memorize', list: qs, startIdx: 0 });
     }
 
-    // Bind item clicks
+    // Bind item clicks / batch checkboxes
     listEl.querySelectorAll('[data-open-qid]').forEach((el) => {
       el.addEventListener('click', () => {
         const qid = el.dataset.openQid;
-        const pool = (state.libSubTab === 'wrong' ? wrongIds : state.libSubTab === 'fav' ? favIds : noteIds)
-          .map((id) => state.questionMap[id]).filter(Boolean);
-        const idx = Math.max(0, pool.findIndex((q) => q.id === qid));
+        if (state.libBatchMode) {
+          if (state.libSelected.has(qid)) state.libSelected.delete(qid);
+          else state.libSelected.add(qid);
+          renderLibrary();
+          return;
+        }
+        const idx = Math.max(0, qs.findIndex((q) => q.id === qid));
         startSession({
           key: '',
           title: state.libSubTab === 'wrong' ? '错题集' : state.libSubTab === 'fav' ? '收藏集' : '我的笔记',
           mode: state.libSubTab === 'notes' ? 'memorize' : 'practice',
-          list: pool,
+          list: qs,
           startIdx: idx
         });
+      });
+    });
+
+    listEl.querySelectorAll('[data-batch-id]').forEach((chk) => {
+      chk.addEventListener('change', (e) => {
+        const qid = e.target.dataset.batchId;
+        if (e.target.checked) state.libSelected.add(qid);
+        else state.libSelected.delete(qid);
+        renderLibrary();
       });
     });
 
@@ -3736,6 +2363,65 @@ code {
 
     $('#note-save-btn').addEventListener('click', () => saveNoteNow(true));
     $('#q-note-input').addEventListener('blur', () => saveNoteNow(false));
+
+    // Comments
+    $('#comment-post-btn').addEventListener('click', () => {
+      const q = getCurrentQuestion();
+      if (!q) return;
+      const input = $('#q-comment-input');
+      const item = Store.addComment(q.id, input.value);
+      if (!item) {
+        showToast('请输入评论内容');
+        return;
+      }
+      input.value = '';
+      renderComments(q.id);
+      showToast('评论已发表');
+    });
+
+    $('#q-comment-list').addEventListener('click', (e) => {
+      const q = getCurrentQuestion();
+      if (!q) return;
+      const likeBtn = e.target.closest('[data-like-comment]');
+      if (likeBtn) {
+        Store.toggleCommentLike(q.id, likeBtn.dataset.likeComment);
+        renderComments(q.id);
+        return;
+      }
+      const delBtn = e.target.closest('[data-del-comment]');
+      if (delBtn) {
+        Store.deleteComment(q.id, delBtn.dataset.delComment);
+        renderComments(q.id);
+        showToast('已删除评论');
+      }
+    });
+
+    $('#comment-nick-btn').addEventListener('click', () => {
+      const btn = $('#comment-nick-btn');
+      if (btn.dataset.editing === '1') return;
+      btn.dataset.editing = '1';
+      const cur = Store.settings.nickname || '无线电爱好者';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'text-input';
+      input.style.cssText = 'min-height:32px;padding:4px 10px;width:150px;font-size:13px;';
+      input.value = cur;
+      input.placeholder = '输入呼号或昵称';
+      btn.replaceWith(input);
+      input.focus();
+      const finishNick = () => {
+        const val = input.value.trim() || '无线电爱好者';
+        Store.saveSettings({ nickname: val });
+        input.replaceWith(btn);
+        btn.dataset.editing = '0';
+        $('#comment-nick-label').textContent = val;
+        showToast(`已设置昵称：${val}`);
+      };
+      input.addEventListener('blur', finishNick);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') input.blur();
+      });
+    });
 
     // Navigation
     $('#quiz-prev-btn').addEventListener('click', () => {
