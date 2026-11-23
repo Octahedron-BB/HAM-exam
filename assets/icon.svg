@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="电波题库">
+  <title>电波题库</title>
+  <rect width="512" height="512" fill="#0F766E"/>
+  <!-- 图形在本地 100x100 坐标绘制，bbox x[11,75.5] y[24.5,89]，中心 (43.25,56.75) 对齐画布中心 -->
+  <g transform="translate(256 256) scale(5.24) translate(-43.25 -56.75)">
+    <g fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round">
+      <path d="M 18 62 A 20 20 0 0 1 38 82"/>
+      <path d="M 18 45 A 37 37 0 0 1 55 82"/>
+      <path d="M 18 28 A 54 54 0 0 1 72 82"/>
+    </g>
+    <circle cx="18" cy="82" r="7" fill="#FFFFFF"/>
+  </g>
+</svg>
