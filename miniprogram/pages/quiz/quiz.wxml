@@ -67,7 +67,8 @@
               bindlongpress="onOptionLongPress"
             >
               <view class="option-key">{{item.key}}</view>
-              <view class="option-text">{{item.text}}</view>
+              <text class="option-text">{{item.text}}</text>
+              <text wx:if="{{item.state === 'eliminated'}}" class="elim-tag">已排除</text>
             </view>
           </view>
 

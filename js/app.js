@@ -1086,10 +1086,12 @@
         cls += ' eliminated';
       }
 
+      const isElim = cls.includes('eliminated');
       return `
         <button class="${cls}" data-opt="${k}" ${isMemorize || isGraded ? 'disabled' : ''}>
           <span class="option-key">${k}</span>
-          <span>${escapeHtml(q.options[k])}</span>
+          <span class="option-text">${escapeHtml(q.options[k])}</span>
+          ${isElim ? '<span class="elim-tag">已排除</span>' : ''}
         </button>
       `;
     }).join('');
@@ -1203,6 +1205,10 @@
         }
       }
       renderQuestion();
+      if (navigator.vibrate) {
+        try { navigator.vibrate(18); } catch (err) {}
+      }
+      showToast(nextElim ? `已排除 ${opt}` : `已恢复 ${opt}`, 1000);
     };
 
     $('#q-options').addEventListener('pointerdown', (e) => {
@@ -1212,7 +1218,7 @@
       longPressTimer = setTimeout(() => {
         suppressNextClick = true;
         toggleEliminateOption(btn.dataset.opt);
-      }, 450);
+      }, 360);
     });
 
     ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) => {

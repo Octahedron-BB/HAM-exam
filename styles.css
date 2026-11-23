@@ -1097,6 +1097,10 @@ code {
   cursor: pointer;
   font-size: 15px;
   line-height: 1.5;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
   transition: border-color 0.12s, background 0.12s;
 }
 
@@ -1153,14 +1157,31 @@ code {
 }
 
 .option-btn.eliminated {
-  opacity: 0.48;
+  opacity: 0.5;
   background: var(--surface-muted);
   border-style: dashed;
 }
 
-.option-btn.eliminated span:last-child {
+.option-btn.eliminated .option-key {
+  background: var(--border-strong);
+  border-color: var(--border-strong);
+  color: #FFFFFF;
+}
+
+.option-btn.eliminated .option-text {
   text-decoration: line-through;
   color: var(--text-muted);
+}
+
+.elim-tag {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--border);
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .q-multi-submit {

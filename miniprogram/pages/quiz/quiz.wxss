@@ -234,14 +234,31 @@ page {
 
 /* 长按排除 */
 .option-btn.eliminated {
-  opacity: 0.48;
+  opacity: 0.52;
   background: #F5F7F9;
   border-style: dashed;
+}
+
+.option-btn.eliminated .option-key {
+  background: #9CA3AF;
+  border-color: #9CA3AF;
+  color: #FFFFFF;
 }
 
 .option-btn.eliminated .option-text {
   text-decoration: line-through;
   color: #9CA3AF;
+}
+
+.elim-tag {
+  font-size: 20rpx;
+  font-weight: 600;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background: #E5E7EB;
+  color: #6B7280;
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .multi-submit {

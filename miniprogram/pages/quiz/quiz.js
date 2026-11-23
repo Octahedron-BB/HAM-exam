@@ -321,6 +321,8 @@ Page({
       options: this.decorate(q, selStr, selStr ? 'picked' : '', elimMap),
       canSubmitMulti: this.selected.length > 0
     });
+    try { wx.vibrateShort({ type: 'light' }); } catch (err) {}
+    wx.showToast({ title: nextElim ? `已排除 ${key}` : `已恢复 ${key}`, icon: 'none', duration: 900 });
   },
 
   onOptionTap(e) {
