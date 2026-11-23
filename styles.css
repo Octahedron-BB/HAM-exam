@@ -1417,3 +1417,159 @@ code {
     border-radius: var(--radius-lg);
   }
 }
+
+/* --- Mock Exam & Custom Paper Builder --- */
+.mock-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .mock-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.mock-card {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mock-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mock-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.paper-counts-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.paper-counts-row .text-input {
+  width: 100%;
+  min-width: 0;
+}
+
+.chapter-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chip-check input {
+  accent-color: var(--accent);
+}
+
+.exam-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exam-timer {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+}
+
+.exam-timer.urgent {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.sheet-num.answered {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.result-dialog {
+  text-align: center;
+}
+
+.result-header {
+  margin-bottom: 14px;
+}
+
+.result-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.result-badge.pass {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.result-badge.fail {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.result-score-box {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  margin-bottom: 16px;
+}
+
+.result-score {
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--accent-text);
+  line-height: 1.1;
+}
+
+.result-score small {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.result-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+

@@ -171,6 +171,20 @@
       driver.set('sessions', this.sessions);
     }
 
+    // --- Exam History ---
+    addExamRecord(record) {
+      this.examHistory.unshift(record);
+      if (this.examHistory.length > 50) {
+        this.examHistory = this.examHistory.slice(0, 50);
+      }
+      driver.set('exam_history', this.examHistory);
+    }
+
+    clearExamHistory() {
+      this.examHistory = [];
+      driver.set('exam_history', []);
+    }
+
     // --- Export / Import / Reset ---
     exportAll() {
       return JSON.stringify({
@@ -181,7 +195,8 @@
         favorites: this.favorites,
         notes: this.notes,
         answered: this.answered,
-        sessions: this.sessions
+        sessions: this.sessions,
+        examHistory: this.examHistory
       }, null, 2);
     }
 
@@ -194,12 +209,14 @@
       if (data.notes) this.notes = data.notes;
       if (data.answered) this.answered = data.answered;
       if (data.sessions) this.sessions = data.sessions;
+      if (data.examHistory) this.examHistory = data.examHistory;
       driver.set('settings', this.settings);
       driver.set('wrong_book', this.wrongBook);
       driver.set('favorites', this.favorites);
       driver.set('notes', this.notes);
       driver.set('answered', this.answered);
       driver.set('sessions', this.sessions);
+      driver.set('exam_history', this.examHistory);
     }
 
     resetProgress() {

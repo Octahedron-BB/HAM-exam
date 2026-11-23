@@ -23,6 +23,7 @@
         <nav class="desktop-nav" aria-label="主导航">
           <button class="nav-btn active" data-tab="practice">题库练习</button>
           <button class="nav-btn" data-tab="syllabus">考点专项</button>
+          <button class="nav-btn" data-tab="exam">模拟组卷</button>
           <button class="nav-btn" data-tab="library">错题收藏</button>
           <button class="nav-btn" data-tab="settings">统计设置</button>
         </nav>
@@ -152,6 +153,116 @@
         </div>
       </section>
 
+      <!-- TAB 3: 模拟考与自定义组卷 -->
+      <section id="tab-exam" class="tab-panel">
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="card-header-row">
+            <div>
+              <h2 class="section-title">全真模拟考试</h2>
+              <p class="section-desc">参照官方操作技术能力验证标准，限时作答，交卷后统一判分并收录错题</p>
+            </div>
+          </div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-top">
+                <span class="level-code">A类模拟考</span>
+                <span class="mono-pill">25题及格</span>
+              </div>
+              <div class="mock-meta">共 30 题（单选25 + 多选5）· 限时 40 分钟</div>
+              <button class="btn btn-primary btn-block mock-start-btn" data-mock="A">开始 A 类模考</button>
+            </div>
+            <div class="mock-card">
+              <div class="mock-top">
+                <span class="level-code">B类模拟考</span>
+                <span class="mono-pill">40题及格</span>
+              </div>
+              <div class="mock-meta">共 50 题（单选40 + 多选10）· 限时 60 分钟</div>
+              <button class="btn btn-primary btn-block mock-start-btn" data-mock="B">开始 B 类模考</button>
+            </div>
+            <div class="mock-card">
+              <div class="mock-top">
+                <span class="level-code">C类模拟考</span>
+                <span class="mono-pill">60题及格</span>
+              </div>
+              <div class="mock-meta">共 80 题（单选65 + 多选15）· 限时 90 分钟</div>
+              <button class="btn btn-primary btn-block mock-start-btn" data-mock="C">开始 C 类模考</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="card">
+            <div class="card-header-row">
+              <div>
+                <h2 class="section-title">自定义组卷</h2>
+                <p class="section-desc">按题库、题型数量、考点章节与抽题策略自由组卷</p>
+              </div>
+            </div>
+
+            <div class="config-group">
+              <label class="config-label">题库范围</label>
+              <div class="segmented" id="paper-level-selector">
+                <button class="seg-btn active" data-plevel="A">A类</button>
+                <button class="seg-btn" data-plevel="B">B类</button>
+                <button class="seg-btn" data-plevel="C">C类</button>
+                <button class="seg-btn" data-plevel="ALL">总题库</button>
+              </div>
+            </div>
+
+            <div class="paper-counts-row">
+              <div class="config-group">
+                <label class="config-label" for="paper-single-count">单选题数</label>
+                <input id="paper-single-count" type="number" min="0" max="500" value="25" class="text-input mono-text" />
+              </div>
+              <div class="config-group">
+                <label class="config-label" for="paper-multi-count">多选题数</label>
+                <input id="paper-multi-count" type="number" min="0" max="200" value="5" class="text-input mono-text" />
+              </div>
+              <div class="config-group">
+                <label class="config-label" for="paper-duration">限时（分钟，0为不限）</label>
+                <input id="paper-duration" type="number" min="0" max="240" value="40" class="text-input mono-text" />
+              </div>
+            </div>
+
+            <div class="config-group">
+              <label class="config-label">抽题策略</label>
+              <div class="segmented" id="paper-strategy-selector">
+                <button class="seg-btn active" data-strategy="random">完全随机</button>
+                <button class="seg-btn" data-strategy="unanswered">优先未做</button>
+                <button class="seg-btn" data-strategy="wrong">优先错题</button>
+              </div>
+            </div>
+
+            <div class="config-group">
+              <label class="config-label">考点章节（不选或全选表示全部章节）</label>
+              <div class="chapter-checks" id="paper-chapter-checks">
+                <label class="chip-check"><input type="checkbox" value="1" checked /> 第1章 法规</label>
+                <label class="chip-check"><input type="checkbox" value="2" checked /> 第2章 通信操作</label>
+                <label class="chip-check"><input type="checkbox" value="3" checked /> 第3章 传播天线</label>
+                <label class="chip-check"><input type="checkbox" value="4" checked /> 第4章 电子电路</label>
+                <label class="chip-check"><input type="checkbox" value="5" checked /> 第5章 兼容安全</label>
+              </div>
+            </div>
+
+            <div class="cta-row" style="margin-top: 16px;">
+              <button id="build-paper-exam-btn" class="btn btn-primary btn-lg">生成试卷并开考（交卷判分）</button>
+              <button id="build-paper-practice-btn" class="btn btn-secondary btn-lg">生成试卷并刷题（实时判分）</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header-row">
+              <div>
+                <h2 class="section-title">模考成绩记录</h2>
+                <p class="section-desc">最近 50 次模拟考与组卷测试成绩</p>
+              </div>
+              <button id="clear-exam-history-btn" class="btn btn-sm btn-ghost">清空记录</button>
+            </div>
+            <div id="exam-history-list" class="library-list"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- TAB 3: 错题收藏与笔记 -->
       <section id="tab-library" class="tab-panel">
         <div class="card">
@@ -254,9 +365,13 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
         <span>考点</span>
       </button>
+      <button class="tabbar-item" data-tab="exam">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span>模考</span>
+      </button>
       <button class="tabbar-item" data-tab="library">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-        <span>错题收藏</span>
+        <span>错题</span>
       </button>
       <button class="tabbar-item" data-tab="settings">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -278,6 +393,10 @@
         <div class="mode-pill" id="quiz-mode-toggle" role="group" aria-label="刷题模式">
           <button class="mode-pill-btn active" data-qmode="practice">做题</button>
           <button class="mode-pill-btn" data-qmode="memorize">背题</button>
+        </div>
+        <div id="quiz-exam-controls" class="exam-controls hidden">
+          <span id="exam-timer" class="exam-timer mono-text">40:00</span>
+          <button id="exam-submit-btn" class="btn btn-sm btn-primary">交卷</button>
         </div>
       </header>
 
@@ -354,6 +473,25 @@
           <span><i class="legend-dot todo"></i>未做</span>
         </div>
         <div id="sheet-grid" class="sheet-grid"></div>
+      </div>
+    </div>
+
+    <!-- Exam Result Scorecard Modal -->
+    <div id="exam-result-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="考试成绩单">
+      <div class="modal-dialog result-dialog">
+        <div class="result-header">
+          <span id="result-badge" class="result-badge pass">PASS · 合格</span>
+          <h3 id="result-title">A类模拟考成绩单</h3>
+        </div>
+        <div class="result-score-box">
+          <div class="result-score mono-text"><span id="result-score">0</span><small id="result-total">/30</small></div>
+          <div id="result-sub" class="result-sub">及格线 25 题 · 用时 00:00</div>
+        </div>
+        <div class="result-actions">
+          <button id="result-review-wrong-btn" class="btn btn-primary btn-block">仅复盘本次错题</button>
+          <button id="result-review-all-btn" class="btn btn-secondary btn-block">核对全部题目解析</button>
+          <button id="result-close-btn" class="btn btn-ghost btn-block">返回模考主页</button>
+        </div>
       </div>
     </div>
 

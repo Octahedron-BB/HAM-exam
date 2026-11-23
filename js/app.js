@@ -15,17 +15,25 @@
     activeTab: 'practice',
     syllabusLevel: Store.settings.level || 'A',
     libSubTab: 'wrong',
+    paperLevel: 'A',
+    paperStrategy: 'random',
 
     // Active quiz session
     session: {
       active: false,
       key: '',
       title: '',
-      mode: 'practice', // 'practice' | 'memorize'
+      mode: 'practice', // 'practice' | 'memorize' | 'exam'
       list: [],
       cursor: 0,
-      results: {},      // { [qid]: { selected, isCorrect } } in current session
-      multiDraft: new Set()
+      results: {},      // { [qid]: { selected, isCorrect } }
+      multiDraft: new Set(),
+      examDraft: {},    // { [qid]: 'AC' }
+      examPassScore: 0,
+      examDurationSec: 0,
+      examSecondsLeft: 0,
+      examStartedAt: 0,
+      examTimerId: null
     }
   };
 
@@ -88,6 +96,7 @@
     bindNavigation();
     bindPracticeHub();
     bindSyllabusTab();
+    bindExamTab();
     bindLibraryTab();
     bindSettingsTab();
     bindQuizView();
@@ -95,6 +104,7 @@
 
     syncPracticeUI();
     renderSyllabus();
+    renderExamHistory();
     renderLibrary();
     renderStats();
   }
@@ -109,6 +119,7 @@
 
     if (tabName === 'practice') syncPracticeUI();
     if (tabName === 'syllabus') renderSyllabus();
+    if (tabName === 'exam') renderExamHistory();
     if (tabName === 'library') renderLibrary();
     if (tabName === 'settings') renderStats();
   }
@@ -359,6 +370,146 @@
     });
   }
 
+  // --- TAB 3: Mock Exam & Custom Paper Builder ---
+  const MOCK_PRESETS = {
+    A: { level: 'A', singleCount: 25, multiCount: 5, durationMin: 40, passScore: 25, title: 'A类全真模拟考' },
+    B: { level: 'B', singleCount: 40, multiCount: 10, durationMin: 60, passScore: 40, title: 'B类全真模拟考' },
+    C: { level: 'C', singleCount: 65, multiCount: 15, durationMin: 90, passScore: 60, title: 'C类全真模拟考' }
+  };
+
+  function bindExamTab() {
+    $$('.mock-start-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const preset = MOCK_PRESETS[btn.dataset.mock];
+        if (!preset) return;
+        const { list } = Engine.generatePaper(state.questions, {
+          level: preset.level,
+          singleCount: preset.singleCount,
+          multiCount: preset.multiCount,
+          strategy: 'random'
+        });
+        if (!list.length) {
+          showToast('组卷失败：题库为空');
+          return;
+        }
+        startSession({
+          key: '',
+          title: preset.title,
+          mode: 'exam',
+          list,
+          startIdx: 0,
+          examPassScore: preset.passScore,
+          examDurationSec: preset.durationMin * 60
+        });
+      });
+    });
+
+    $('#paper-level-selector').addEventListener('click', (e) => {
+      const btn = e.target.closest('.seg-btn');
+      if (!btn) return;
+      state.paperLevel = btn.dataset.plevel;
+      $$('#paper-level-selector .seg-btn').forEach((b) => {
+        b.classList.toggle('active', b.dataset.plevel === state.paperLevel);
+      });
+    });
+
+    $('#paper-strategy-selector').addEventListener('click', (e) => {
+      const btn = e.target.closest('.seg-btn');
+      if (!btn) return;
+      state.paperStrategy = btn.dataset.strategy;
+      $$('#paper-strategy-selector .seg-btn').forEach((b) => {
+        b.classList.toggle('active', b.dataset.strategy === state.paperStrategy);
+      });
+    });
+
+    const launchCustomPaper = (mode) => {
+      const singleCount = Math.max(0, parseInt($('#paper-single-count').value || '0', 10));
+      const multiCount = Math.max(0, parseInt($('#paper-multi-count').value || '0', 10));
+      const durationMin = Math.max(0, parseInt($('#paper-duration').value || '0', 10));
+      const chapters = $$('#paper-chapter-checks input:checked').map((el) => el.value);
+
+      if (singleCount + multiCount === 0) {
+        showToast('请至少设置 1 道单选题或多选题');
+        return;
+      }
+
+      const { list } = Engine.generatePaper(state.questions, {
+        level: state.paperLevel,
+        chapters,
+        singleCount,
+        multiCount,
+        strategy: state.paperStrategy,
+        answeredMap: Store.answered,
+        wrongMap: Store.wrongBook
+      });
+
+      if (!list.length) {
+        showToast('当前筛选条件下没有足够的题目');
+        return;
+      }
+
+      const levelLabel = state.paperLevel === 'ALL' ? '总题库' : `${state.paperLevel}类`;
+      const passScore = Math.ceil(list.length * 0.8);
+      startSession({
+        key: '',
+        title: `自定义组卷 (${levelLabel} · ${list.length}题)`,
+        mode,
+        list,
+        startIdx: 0,
+        examPassScore: passScore,
+        examDurationSec: mode === 'exam' ? durationMin * 60 : 0
+      });
+    };
+
+    $('#build-paper-exam-btn').addEventListener('click', () => launchCustomPaper('exam'));
+    $('#build-paper-practice-btn').addEventListener('click', () => launchCustomPaper('practice'));
+
+    $('#clear-exam-history-btn').addEventListener('click', async () => {
+      if (!Store.examHistory.length) return;
+      if (await showConfirm('清空模考记录', '确定要清空所有历史模考成绩记录吗？')) {
+        Store.clearExamHistory();
+        renderExamHistory();
+        showToast('已清空模考记录');
+      }
+    });
+  }
+
+  function formatDuration(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  function renderExamHistory() {
+    const listEl = $('#exam-history-list');
+    if (!listEl) return;
+    const records = Store.examHistory || [];
+    if (!records.length) {
+      listEl.innerHTML = '<div class="empty-state">暂无模考记录，点击上方按钮开始一次模拟考或自定义组卷</div>';
+      return;
+    }
+    listEl.innerHTML = records.map((r) => {
+      const dateStr = new Date(r.createdAt).toLocaleString('zh-CN', {
+        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+      });
+      return `
+        <div class="lib-item">
+          <div class="lib-item-main" style="cursor:default;">
+            <div class="lib-item-meta">
+              <span class="badge" style="background:${r.passed ? 'var(--success-soft)' : 'var(--danger-soft)'};color:${r.passed ? 'var(--success)' : 'var(--danger)'};">
+                ${r.passed ? '合格' : '未及格'}
+              </span>
+              <span class="mono-text" style="font-weight:700;">${r.score} / ${r.total}</span>
+              <span class="mono-id">用时 ${formatDuration(r.durationSec)}</span>
+              <span class="mono-id">${dateStr}</span>
+            </div>
+            <div class="lib-item-q">${escapeHtml(r.title)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   // --- TAB 3: Library (Wrong / Favorites / Notes) ---
   function bindLibraryTab() {
     $('#library-subtabs').addEventListener('click', (e) => {
@@ -585,8 +736,28 @@
     });
   }
 
-  // --- QUIZ / MEMORIZE VIEW ---
-  function startSession({ key, title, mode, list, startIdx = 0 }) {
+  // --- QUIZ / MEMORIZE / EXAM VIEW ---
+  function stopExamTimer() {
+    if (state.session.examTimerId) {
+      clearInterval(state.session.examTimerId);
+      state.session.examTimerId = null;
+    }
+  }
+
+  function updateExamTimerUI() {
+    const el = $('#exam-timer');
+    if (!el) return;
+    if (state.session.examDurationSec <= 0) {
+      el.textContent = '不限时';
+      el.classList.remove('urgent');
+      return;
+    }
+    el.textContent = formatDuration(Math.max(0, state.session.examSecondsLeft));
+    el.classList.toggle('urgent', state.session.examSecondsLeft <= 180);
+  }
+
+  function startSession({ key, title, mode, list, startIdx = 0, examPassScore = 0, examDurationSec = 0 }) {
+    stopExamTimer();
     const preparedList = Store.settings.shuffleOptions !== false
       ? list.map((q) => Engine.shuffleOptions(q))
       : list;
@@ -599,8 +770,29 @@
       list: preparedList,
       cursor: Math.min(Math.max(0, startIdx), preparedList.length - 1),
       results: {},
-      multiDraft: new Set()
+      multiDraft: new Set(),
+      examDraft: {},
+      examPassScore,
+      examDurationSec,
+      examSecondsLeft: examDurationSec,
+      examStartedAt: Date.now(),
+      examTimerId: null
     };
+
+    if (mode === 'exam' && examDurationSec > 0) {
+      updateExamTimerUI();
+      state.session.examTimerId = setInterval(() => {
+        state.session.examSecondsLeft -= 1;
+        updateExamTimerUI();
+        if (state.session.examSecondsLeft <= 0) {
+          stopExamTimer();
+          showToast('考试时间到，已自动交卷');
+          finishExam();
+        }
+      }, 1000);
+    } else if (mode === 'exam') {
+      updateExamTimerUI();
+    }
 
     $('#quiz-view').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -608,14 +800,89 @@
   }
 
   function closeSession() {
+    stopExamTimer();
     saveCurrentNoteQuietly();
     state.session.active = false;
     $('#quiz-view').classList.add('hidden');
     document.body.style.overflow = '';
     syncPracticeUI();
+    renderExamHistory();
     renderLibrary();
     renderSyllabus();
     renderStats();
+  }
+
+  function finishExam() {
+    stopExamTimer();
+    saveCurrentNoteQuietly();
+    const s = state.session;
+    let score = 0;
+    const wrongList = [];
+
+    s.list.forEach((q) => {
+      const picked = s.examDraft[q.id] || '';
+      const res = Engine.grade(q, picked);
+      s.results[q.id] = res;
+      if (picked) {
+        Store.recordAttempt(q.id, res.selected, res.isCorrect);
+      } else {
+        Store.recordAttempt(q.id, '', false);
+      }
+      if (res.isCorrect) {
+        score += 1;
+      } else {
+        wrongList.push(q);
+      }
+    });
+
+    const elapsedSec = Math.max(1, Math.round((Date.now() - s.examStartedAt) / 1000));
+    const passed = score >= s.examPassScore;
+
+    Store.addExamRecord({
+      id: Date.now(),
+      title: s.title,
+      score,
+      total: s.list.length,
+      passScore: s.examPassScore,
+      passed,
+      durationSec: elapsedSec,
+      createdAt: Date.now()
+    });
+
+    // Show scorecard modal
+    const badge = $('#result-badge');
+    badge.textContent = passed ? 'PASS · 合格' : 'FAIL · 未及格';
+    badge.className = `result-badge ${passed ? 'pass' : 'fail'}`;
+    $('#result-title').textContent = s.title;
+    $('#result-score').textContent = score;
+    $('#result-total').textContent = `/${s.list.length}`;
+    $('#result-sub').textContent = `及格线 ${s.examPassScore} 题 · 用时 ${formatDuration(elapsedSec)} · 错题 ${wrongList.length} 道`;
+
+    const wrongBtn = $('#result-review-wrong-btn');
+    wrongBtn.disabled = wrongList.length === 0;
+    wrongBtn.textContent = wrongList.length ? `仅复盘本次错题 (${wrongList.length})` : '全对！无错题';
+
+    $('#exam-result-modal').classList.remove('hidden');
+
+    wrongBtn.onclick = () => {
+      $('#exam-result-modal').classList.add('hidden');
+      s.mode = 'practice';
+      s.list = wrongList;
+      s.cursor = 0;
+      renderQuestion();
+    };
+
+    $('#result-review-all-btn').onclick = () => {
+      $('#exam-result-modal').classList.add('hidden');
+      s.mode = 'practice';
+      s.cursor = 0;
+      renderQuestion();
+    };
+
+    $('#result-close-btn').onclick = () => {
+      $('#exam-result-modal').classList.add('hidden');
+      closeSession();
+    };
   }
 
   function getCurrentQuestion() {
@@ -645,6 +912,10 @@
     $('#quiz-counter').textContent = `${s.cursor + 1} / ${s.list.length}`;
     const pct = Math.round(((s.cursor + 1) / s.list.length) * 100);
     $('#quiz-progress-fill').style.width = `${pct}%`;
+
+    const isExam = s.mode === 'exam';
+    $('#quiz-mode-toggle').classList.toggle('hidden', isExam);
+    $('#quiz-exam-controls').classList.toggle('hidden', !isExam);
 
     $$('#quiz-mode-toggle .mode-pill-btn').forEach((b) => {
       b.classList.toggle('active', b.dataset.qmode === s.mode);
@@ -684,10 +955,11 @@
     // Options
     const prevResult = s.results[q.id];
     const isMemorize = s.mode === 'memorize';
-    const isGraded = Boolean(prevResult);
+    const isGraded = !isExam && Boolean(prevResult);
     const ansSet = new Set(q.answer.split(''));
+    const examPicked = s.examDraft[q.id] || '';
 
-    if (!isGraded) {
+    if (!isGraded && !isExam) {
       s.multiDraft = new Set();
     }
 
@@ -696,7 +968,9 @@
 
     optContainer.innerHTML = keys.map((k) => {
       let cls = 'option-btn';
-      if (isMemorize) {
+      if (isExam) {
+        if (examPicked.includes(k)) cls += ' selected';
+      } else if (isMemorize) {
         if (ansSet.has(k)) cls += ' correct';
       } else if (isGraded) {
         const userPicked = prevResult.selected.includes(k);
@@ -714,9 +988,9 @@
       `;
     }).join('');
 
-    // Multi submit button
+    // Multi submit button (only in practice mode, not exam mode)
     const multiWrap = $('#q-multi-submit-wrap');
-    if (q.type === 'multi' && !isMemorize && !isGraded) {
+    if (q.type === 'multi' && !isExam && !isMemorize && !isGraded) {
       multiWrap.classList.remove('hidden');
     } else {
       multiWrap.classList.add('hidden');
@@ -724,7 +998,10 @@
 
     // Feedback banner
     const fb = $('#q-feedback');
-    if (isMemorize) {
+    if (isExam) {
+      fb.className = 'q-feedback hidden';
+      fb.innerHTML = '';
+    } else if (isMemorize) {
       fb.className = 'q-feedback is-memorize';
       fb.innerHTML = `<span>背题模式 · 正确答案：<strong class="mono-text">${q.answer}</strong></span>`;
     } else if (isGraded) {
@@ -733,7 +1010,7 @@
         fb.innerHTML = `<span>回答正确！</span><span class="mono-text">答案：${q.answer}</span>`;
       } else {
         fb.className = 'q-feedback is-wrong';
-        fb.innerHTML = `<span>回答错误（你选了 ${prevResult.selected}）· 已加入错题集</span><span class="mono-text">正确答案：${q.answer}</span>`;
+        fb.innerHTML = `<span>回答错误（你选了 ${prevResult.selected || '未作答'}）· 已加入错题集</span><span class="mono-text">正确答案：${q.answer}</span>`;
       }
     } else {
       fb.className = 'q-feedback hidden';
@@ -746,7 +1023,7 @@
 
     // Prev / Next buttons
     $('#quiz-prev-btn').disabled = s.cursor === 0;
-    $('#quiz-next-btn').textContent = s.cursor === s.list.length - 1 ? '完成' : '下一题';
+    $('#quiz-next-btn').textContent = s.cursor === s.list.length - 1 ? (isExam ? '交卷' : '完成') : '下一题';
   }
 
   function submitChoice(selectedStr) {
@@ -760,7 +1037,29 @@
   }
 
   function bindQuizView() {
-    $('#quiz-back-btn').addEventListener('click', closeSession);
+    const confirmSubmitExam = async () => {
+      const s = state.session;
+      const answeredCount = s.list.filter((q) => Boolean(s.examDraft[q.id])).length;
+      const todoCount = s.list.length - answeredCount;
+      const msg = todoCount > 0
+        ? `还有 ${todoCount} 道题未作答，确定要现在交卷吗？`
+        : '所有题目已作答，确定交卷并查看成绩单吗？';
+      if (await showConfirm('确认交卷', msg)) {
+        finishExam();
+      }
+    };
+
+    $('#exam-submit-btn').addEventListener('click', confirmSubmitExam);
+
+    $('#quiz-back-btn').addEventListener('click', async () => {
+      if (state.session.mode === 'exam') {
+        if (await showConfirm('退出考试', '当前正在考试中，退出将不会保存本次成绩，确定退出吗？')) {
+          closeSession();
+        }
+      } else {
+        closeSession();
+      }
+    });
 
     $('#quiz-mode-toggle').addEventListener('click', (e) => {
       const btn = e.target.closest('.mode-pill-btn');
@@ -783,6 +1082,19 @@
       const opt = btn.dataset.opt;
       const q = getCurrentQuestion();
       if (!q) return;
+
+      if (state.session.mode === 'exam') {
+        if (q.type === 'single') {
+          state.session.examDraft[q.id] = opt;
+        } else {
+          const curSet = new Set((state.session.examDraft[q.id] || '').split('').filter(Boolean));
+          if (curSet.has(opt)) curSet.delete(opt);
+          else curSet.add(opt);
+          state.session.examDraft[q.id] = Array.from(curSet).sort().join('');
+        }
+        renderQuestion();
+        return;
+      }
 
       if (q.type === 'single') {
         submitChoice(opt);
@@ -832,6 +1144,8 @@
       if (state.session.cursor < state.session.list.length - 1) {
         state.session.cursor += 1;
         renderQuestion();
+      } else if (state.session.mode === 'exam') {
+        confirmSubmitExam();
       } else {
         showToast('本组题目已全部浏览完成！');
         closeSession();
@@ -843,10 +1157,14 @@
       const s = state.session;
       const grid = $('#sheet-grid');
       grid.innerHTML = s.list.map((q, idx) => {
-        const res = s.results[q.id];
         let cls = 'sheet-num';
         if (idx === s.cursor) cls += ' current';
-        if (res) cls += res.isCorrect ? ' correct' : ' wrong';
+        if (s.mode === 'exam') {
+          if (s.examDraft[q.id]) cls += ' answered';
+        } else {
+          const res = s.results[q.id];
+          if (res) cls += res.isCorrect ? ' correct' : ' wrong';
+        }
         return `<button class="${cls}" data-jump="${idx}">${idx + 1}</button>`;
       }).join('');
       $('#sheet-modal').classList.remove('hidden');

@@ -151,6 +151,51 @@
           sections: sectionEntries
         };
       }).filter((ch) => ch.total > 0);
+    },
+
+    /**
+     * Generate an exam paper (Mock Exam or Custom Paper)
+     */
+    generatePaper(questions, opts = {}) {
+      const {
+        level = 'A',
+        chapters = [],
+        singleCount = 25,
+        multiCount = 5,
+        strategy = 'random',
+        answeredMap = {},
+        wrongMap = {}
+      } = opts;
+
+      let pool = this.filterQuestions(questions, { level });
+      if (chapters && chapters.length > 0) {
+        const chSet = new Set(chapters);
+        pool = pool.filter((q) => chSet.has(q.p.split('.')[0]));
+      }
+
+      const pickByStrategy = (items, count) => {
+        if (count <= 0 || items.length === 0) return [];
+        const shuffled = this.shuffle(items);
+        if (strategy === 'unanswered') {
+          const todo = shuffled.filter((q) => !answeredMap[q.id]);
+          const done = shuffled.filter((q) => answeredMap[q.id]);
+          return todo.concat(done).slice(0, count);
+        }
+        if (strategy === 'wrong') {
+          const wrong = shuffled.filter((q) => wrongMap[q.id]);
+          const rest = shuffled.filter((q) => !wrongMap[q.id]);
+          return wrong.concat(rest).slice(0, count);
+        }
+        return shuffled.slice(0, count);
+      };
+
+      const singles = pickByStrategy(pool.filter((q) => q.type === 'single'), singleCount);
+      const multis = pickByStrategy(pool.filter((q) => q.type === 'multi'), multiCount);
+      return {
+        list: singles.concat(multis),
+        actualSingle: singles.length,
+        actualMulti: multis.length
+      };
     }
   };
 
