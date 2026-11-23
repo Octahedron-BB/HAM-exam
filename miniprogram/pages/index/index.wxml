@@ -1,0 +1,101 @@
+<view class="page-wrap">
+
+  <!-- 用户条 -->
+  <view class="user-bar" bindtap="onLoginTap">
+    <image
+      wx:if="{{profile.avatarUrl}}"
+      class="user-avatar"
+      src="{{profile.avatarUrl}}"
+      mode="aspectFill"
+    />
+    <view wx:else class="user-avatar user-avatar-empty">CQ</view>
+
+    <view class="user-meta">
+      <view class="user-name">{{loggedIn ? profile.nickName : '未登录'}}</view>
+      <view class="user-sub">{{loggedIn ? '点击可修改资料' : '点击登录，记录属于你的学习进度'}}</view>
+    </view>
+
+    <view class="user-arrow">›</view>
+  </view>
+
+  <!-- 统计 -->
+  <view class="stat-row">
+    <view class="stat-item">
+      <view class="stat-num mono">{{stats.total}}</view>
+      <view class="stat-label">已作答</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-num mono">{{stats.accuracy}}%</view>
+      <view class="stat-label">正确率</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-num mono">{{stats.wrong}}</view>
+      <view class="stat-label">错题</view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-num mono">{{stats.favorites}}</view>
+      <view class="stat-label">收藏</view>
+    </view>
+  </view>
+
+  <!-- 选择题库级别 -->
+  <view class="card">
+    <view class="card-head">
+      <view>
+        <view class="section-title">选择题库级别</view>
+        <view class="section-desc">依据 CRAC 考试大纲整理</view>
+      </view>
+      <view class="pill mono">{{currentCount}} 题</view>
+    </view>
+
+    <view class="level-grid">
+      <view
+        wx:for="{{levels}}"
+        wx:key="key"
+        class="level-item {{level === item.key ? 'level-item-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onLevelTap"
+      >
+        <view class="level-label">{{item.label}}</view>
+        <view class="level-count mono">{{item.count}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 刷题模式 -->
+  <view class="card">
+    <view class="section-title">刷题方式</view>
+    <view class="order-row">
+      <view
+        wx:for="{{orders}}"
+        wx:key="key"
+        class="order-item {{order === item.key ? 'order-item-active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onOrderTap"
+      >{{item.label}}</view>
+    </view>
+    <view class="section-desc order-hint">
+      {{order === 'memorize' ? '背题模式：直接显示答案与解析，适合快速过题' : (order === 'random' ? '随机模式：打乱题目顺序，避免形成位置记忆' : '顺序模式：按考纲顺序推进，支持断点续刷')}}
+    </view>
+  </view>
+
+  <button class="btn-primary start-btn" bindtap="onStart">开始刷题</button>
+
+  <!-- 专项入口 -->
+  <view class="card entry-card">
+    <view class="entry-row" bindtap="onOpenWrong">
+      <view class="entry-name">错题集</view>
+      <view class="entry-meta mono">{{stats.wrong}} 题 ›</view>
+    </view>
+    <view class="entry-row" bindtap="onOpenFavorite">
+      <view class="entry-name">收藏集</view>
+      <view class="entry-meta mono">{{stats.favorites}} 题 ›</view>
+    </view>
+    <view class="entry-row entry-row-last" bindtap="onOpenNotes">
+      <view class="entry-name">我的笔记</view>
+      <view class="entry-meta mono">{{stats.notes}} 条 ›</view>
+    </view>
+  </view>
+
+  <view class="footer-tip">本站为个人学习工具，与任何官方机构无隶属关系</view>
+</view>

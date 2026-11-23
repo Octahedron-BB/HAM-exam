@@ -1,0 +1,91 @@
+<view class="quiz-page">
+
+  <!-- 空态 / 加载 -->
+  <view wx:if="{{loading}}" class="empty-state">正在加载题库…</view>
+  <view wx:elif="{{emptyText}}" class="empty-state">
+    <view>{{emptyText}}</view>
+    <button class="btn-ghost back-btn" bindtap="onExit">返回</button>
+  </view>
+
+  <block wx:else>
+    <!-- 顶部进度 -->
+    <view class="quiz-top">
+      <view class="progress-track">
+        <view class="progress-bar" style="width: {{progressPercent}}"></view>
+      </view>
+      <view class="progress-text mono">{{index + 1}} / {{total}}</view>
+      <view class="fav-btn {{isFavorite ? 'fav-active' : ''}}" bindtap="onToggleFavorite">
+        {{isFavorite ? '★' : '☆'}}
+      </view>
+    </view>
+
+    <scroll-view scroll-y class="scroll-area">
+      <!-- 题干 -->
+      <view class="card q-card">
+        <view class="q-meta">
+          <text class="pill">{{q.typeText}}</text>
+          <text class="q-point mono">{{q.point}}</text>
+          <text wx:if="{{isWrong}}" class="pill pill-warn">错题</text>
+        </view>
+        <view class="q-text">{{q.text}}</view>
+      </view>
+
+      <!-- 选项 -->
+      <view class="card option-card">
+        <view
+          wx:for="{{options}}"
+          wx:key="key"
+          class="option {{item.state}}"
+          data-key="{{item.key}}"
+          bindtap="onOptionTap"
+        >
+          <view class="option-key">{{item.key}}</view>
+          <view class="option-text">{{item.text}}</view>
+        </view>
+
+        <button
+          wx:if="{{isMulti && !submitted}}"
+          class="btn-primary multi-submit"
+          bindtap="onSubmitMulti"
+          disabled="{{!canSubmitMulti}}"
+        >确认提交多选答案</button>
+      </view>
+
+      <!-- 判分反馈 -->
+      <view wx:if="{{submitted}}" class="feedback {{isMemorize ? 'feedback-memorize' : (isCorrect ? 'feedback-correct' : 'feedback-wrong')}}">
+        <block wx:if="{{isMemorize}}">
+          <text>背题模式 · 正确答案：</text><text class="mono feedback-answer">{{answerText}}</text>
+        </block>
+        <block wx:elif="{{isCorrect}}">
+          <text>回答正确！</text><text class="mono feedback-answer">答案：{{answerText}}</text>
+        </block>
+        <block wx:else>
+          <text>回答错误（你选了 {{selectedText}}）</text><text class="mono feedback-answer">正确答案：{{answerText}}</text>
+        </block>
+      </view>
+
+      <!-- 笔记 -->
+      <view class="card note-card">
+        <view class="note-head">
+          <text class="note-title">随手笔记</text>
+          <text class="note-save" bindtap="onSaveNote">保存</text>
+        </view>
+        <textarea
+          class="note-input"
+          value="{{noteText}}"
+          placeholder="记录这道题的记忆口诀、易错点或法规条文…"
+          maxlength="1000"
+          auto-height
+          bindinput="onNoteInput"
+          bindblur="onNoteBlur"
+        />
+      </view>
+    </scroll-view>
+
+    <!-- 底部导航 -->
+    <view class="quiz-footer">
+      <button class="btn-ghost flex1" bindtap="onPrev" disabled="{{index === 0}}">上一题</button>
+      <button class="btn-primary flex2" bindtap="onNext">{{index === total - 1 ? '完成' : '下一题'}}</button>
+    </view>
+  </block>
+</view>
