@@ -3898,10 +3898,15 @@ code {
 
     let longPressTimer = null;
     let suppressNextClick = false;
+    let lastEliminateAt = 0;
 
     const toggleEliminateOption = (opt) => {
+      const now = Date.now();
+      if (now - lastEliminateAt < 650) return;
       const q = getCurrentQuestion();
       if (!q || state.session.mode === 'memorize' || (state.session.mode !== 'exam' && state.session.results[q.id])) return;
+      lastEliminateAt = now;
+
       if (!state.session.eliminated) state.session.eliminated = {};
       if (!state.session.eliminated[q.id]) state.session.eliminated[q.id] = {};
       const elimMap = state.session.eliminated[q.id];
@@ -3943,7 +3948,10 @@ code {
       const btn = e.target.closest('.option-btn');
       if (!btn || btn.disabled) return;
       e.preventDefault();
-      toggleEliminateOption(btn.dataset.opt);
+      // Only toggle on desktop mouse right-click (touch already handled by long-press timer)
+      if (e.pointerType === 'mouse' || (Date.now() - lastEliminateAt > 800)) {
+        toggleEliminateOption(btn.dataset.opt);
+      }
     });
 
     $('#q-options').addEventListener('click', (e) => {
