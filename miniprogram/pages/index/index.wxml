@@ -1,7 +1,7 @@
 <view class="page-wrap">
 
-  <!-- 用户条 -->
-  <view class="user-bar" bindtap="onLoginTap">
+  <!-- 用户 -->
+  <view class="card user-card" bindtap="onLoginTap">
     <image
       wx:if="{{profile.avatarUrl}}"
       class="user-avatar"
@@ -18,63 +18,77 @@
     <view class="user-arrow">›</view>
   </view>
 
-  <!-- 统计 -->
-  <view class="stat-row">
-    <view class="stat-item">
-      <view class="stat-num mono">{{stats.total}}</view>
-      <view class="stat-label">已作答</view>
+  <!-- 学习概况 -->
+  <view class="card">
+    <view class="card-header-row">
+      <view>
+        <view class="section-title">学习概况</view>
+        <view class="section-desc">答题记录只保存在本机</view>
+      </view>
     </view>
-    <view class="stat-item">
-      <view class="stat-num mono">{{stats.accuracy}}%</view>
-      <view class="stat-label">正确率</view>
-    </view>
-    <view class="stat-item">
-      <view class="stat-num mono">{{stats.wrong}}</view>
-      <view class="stat-label">错题</view>
-    </view>
-    <view class="stat-item">
-      <view class="stat-num mono">{{stats.favorites}}</view>
-      <view class="stat-label">收藏</view>
+
+    <view class="stats-grid">
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.total}}</view>
+        <view class="stat-lbl">已作答</view>
+      </view>
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.accuracy}}%</view>
+        <view class="stat-lbl">正确率</view>
+      </view>
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.wrong}}</view>
+        <view class="stat-lbl">错题</view>
+      </view>
+      <view class="stat-box">
+        <view class="stat-val mono">{{stats.favorites}}</view>
+        <view class="stat-lbl">收藏</view>
+      </view>
     </view>
   </view>
 
   <!-- 选择题库级别 -->
   <view class="card">
-    <view class="card-head">
+    <view class="card-header-row">
       <view>
         <view class="section-title">选择题库级别</view>
         <view class="section-desc">依据 CRAC 考试大纲整理</view>
       </view>
-      <view class="pill mono">{{currentCount}} 题</view>
+      <view class="mono-pill">{{currentCount}} 题</view>
     </view>
 
     <view class="level-grid">
       <view
         wx:for="{{levels}}"
         wx:key="key"
-        class="level-item {{level === item.key ? 'level-item-active' : ''}}"
+        class="level-card {{level === item.key ? 'level-card-active' : ''}}"
         data-key="{{item.key}}"
         bindtap="onLevelTap"
       >
-        <view class="level-label">{{item.label}}</view>
-        <view class="level-count mono">{{item.count}}</view>
+        <view class="level-top">
+          <text class="level-code">{{item.label}}</text>
+          <text class="level-count mono">{{item.count}}</text>
+        </view>
+        <view class="level-name">{{item.desc}}</view>
       </view>
     </view>
   </view>
 
-  <!-- 刷题模式 -->
+  <!-- 刷题方式 -->
   <view class="card">
     <view class="section-title">刷题方式</view>
-    <view class="order-row">
+
+    <view class="seg-row">
       <view
         wx:for="{{orders}}"
         wx:key="key"
-        class="order-item {{order === item.key ? 'order-item-active' : ''}}"
+        class="seg-item {{order === item.key ? 'seg-item-active' : ''}}"
         data-key="{{item.key}}"
         bindtap="onOrderTap"
       >{{item.label}}</view>
     </view>
-    <view class="section-desc order-hint">
+
+    <view class="section-desc seg-hint">
       {{order === 'memorize' ? '背题模式：直接显示答案与解析，适合快速过题' : (order === 'random' ? '随机模式：打乱题目顺序，避免形成位置记忆' : '顺序模式：按考纲顺序推进，支持断点续刷')}}
     </view>
   </view>

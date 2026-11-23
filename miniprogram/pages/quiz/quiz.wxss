@@ -3,6 +3,7 @@
 page {
   height: 100%;
   overflow: hidden;
+  background: #F5F7F9;
 }
 
 .quiz-page {
@@ -10,50 +11,48 @@ page {
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  background: #F4F6F6;
+  background: #F5F7F9;
 }
 
-/* ---- 顶部进度 ---- */
-.quiz-top {
-  display: flex;
-  align-items: center;
-  padding: 20rpx 24rpx;
-  background: #FFFFFF;
+/* ---- 顶部进度细线（原版 3px）---- */
+.progress-line {
+  height: 6rpx;
+  background: #E5E7EB;
   flex-shrink: 0;
 }
 
-.progress-track {
-  flex: 1;
-  height: 8rpx;
-  border-radius: 999rpx;
-  background: #E6F2F0;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 8rpx;
-  border-radius: 999rpx;
+.progress-fill {
+  height: 100%;
   background: #0F766E;
   transition: width 0.2s ease;
 }
 
-.progress-text {
-  font-size: 24rpx;
-  color: #6B7780;
-  margin-left: 20rpx;
-  min-width: 96rpx;
-  text-align: right;
+/* ---- 顶栏 ---- */
+.quiz-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 32rpx;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
+  flex-shrink: 0;
+}
+
+.quiz-counter {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #6B7280;
 }
 
 .fav-btn {
-  margin-left: 16rpx;
-  font-size: 40rpx;
+  font-size: 38rpx;
   line-height: 1;
-  color: #C3CFCE;
+  color: #D1D5DB;
+  padding: 0 6rpx;
 }
 
 .fav-active {
-  color: #E0A33E;
+  color: #D97706;
 }
 
 /* ---- 滚动区 ---- */
@@ -62,151 +61,159 @@ page {
 .scroll-area {
   flex: 1;
   min-height: 0;
-  padding: 24rpx;
+  padding: 32rpx;
   box-sizing: border-box;
   overflow: hidden;
 }
 
 /* ---- 题干 ---- */
 .q-card {
+  margin-bottom: 28rpx;
+}
+
+.q-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16rpx;
   margin-bottom: 24rpx;
 }
 
-.q-meta {
+.q-badges {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 18rpx;
-}
-
-.pill-warn {
-  background: #FDECEA;
-  color: #C0392B;
-  margin-left: 12rpx;
+  align-items: center;
+  gap: 12rpx;
 }
 
 .q-point {
   font-size: 22rpx;
-  color: #A8B3B9;
-  margin-left: 12rpx;
+  color: #9CA3AF;
 }
 
-.q-text {
-  font-size: 32rpx;
-  line-height: 1.65;
+.q-stem {
+  font-size: 34rpx;
   font-weight: 600;
-  color: #1F2329;
+  line-height: 1.6;
+  color: #111827;
+  margin-bottom: 32rpx;
 }
 
 /* ---- 选项 ---- */
-.option-card {
-  padding: 20rpx;
-  margin-bottom: 24rpx;
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 
-.option {
+.option-btn {
   display: flex;
   align-items: flex-start;
-  padding: 24rpx 20rpx;
-  margin-bottom: 16rpx;
-  border-radius: 16rpx;
-  background: #F4F6F6;
-  border: 2rpx solid transparent;
-}
-
-.option:last-child {
-  margin-bottom: 0;
+  gap: 24rpx;
+  padding: 26rpx 28rpx;
+  border-radius: 24rpx;
+  border: 3rpx solid #E5E7EB;
+  background: #FFFFFF;
 }
 
 .option-key {
-  width: 48rpx;
-  height: 48rpx;
-  line-height: 48rpx;
+  width: 52rpx;
+  height: 52rpx;
+  line-height: 46rpx;
   text-align: center;
   border-radius: 50%;
-  background: #FFFFFF;
-  color: #6B7780;
-  font-size: 24rpx;
+  border: 3rpx solid #D1D5DB;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 26rpx;
   font-weight: 700;
+  color: #4B5563;
   flex-shrink: 0;
+  margin-top: 1rpx;
+  box-sizing: border-box;
 }
 
 .option-text {
   flex: 1;
-  margin-left: 18rpx;
-  font-size: 28rpx;
-  line-height: 1.6;
-  color: #1F2329;
+  font-size: 30rpx;
+  line-height: 1.5;
+  color: #111827;
   word-break: break-all;
 }
 
 /* 选中（多选未提交） */
-.option.picked {
-  background: #E6F2F0;
+.option-btn.picked {
   border-color: #0F766E;
+  background: #CCFBF1;
 }
 
-.option.picked .option-key {
+.option-btn.picked .option-key {
   background: #0F766E;
+  border-color: #0F766E;
   color: #FFFFFF;
 }
 
 /* 正确 */
-.option.correct {
-  background: #E8F6EF;
-  border-color: #2E9E6B;
+.option-btn.correct {
+  border-color: #059669;
+  background: #D1FAE5;
 }
 
-.option.correct .option-key {
-  background: #2E9E6B;
+.option-btn.correct .option-key {
+  background: #059669;
+  border-color: #059669;
   color: #FFFFFF;
 }
 
 /* 选错 */
-.option.wrong {
-  background: #FDECEA;
-  border-color: #D9534F;
+.option-btn.wrong {
+  border-color: #DC2626;
+  background: #FEE2E2;
 }
 
-.option.wrong .option-key {
-  background: #D9534F;
+.option-btn.wrong .option-key {
+  background: #DC2626;
+  border-color: #DC2626;
   color: #FFFFFF;
 }
 
 .multi-submit {
-  margin-top: 24rpx;
+  margin-top: 28rpx;
+  width: 100%;
 }
 
-/* ---- 反馈 ---- */
-.feedback {
+/* ---- 判分反馈（原版：卡片内、柔和底色、两端对齐）---- */
+.q-feedback {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: space-between;
-  padding: 24rpx;
-  border-radius: 16rpx;
-  font-size: 26rpx;
-  margin-bottom: 24rpx;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 28rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
-.feedback-correct {
-  background: #E8F6EF;
-  color: #1F7A52;
+.q-feedback.is-correct {
+  background: #D1FAE5;
+  color: #059669;
 }
 
-.feedback-wrong {
-  background: #FDECEA;
-  color: #B03A34;
+.q-feedback.is-wrong {
+  background: #FEE2E2;
+  color: #DC2626;
 }
 
-.feedback-memorize {
-  background: #E6F2F0;
+.q-feedback.is-memorize {
+  background: #CCFBF1;
   color: #0F766E;
 }
 
 .feedback-answer {
+  flex-shrink: 0;
+  font-size: 32rpx;
   font-weight: 700;
-  margin-left: 8rpx;
 }
 
 /* ---- 笔记 ---- */
@@ -218,38 +225,41 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
 }
 
 .note-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #4A5560;
+  color: #4B5563;
 }
 
 .note-save {
   font-size: 24rpx;
+  font-weight: 600;
   color: #0F766E;
-  padding: 6rpx 16rpx;
+  padding: 6rpx 12rpx;
 }
 
 .note-input {
   width: 100%;
-  min-height: 120rpx;
-  background: #F4F6F6;
-  border-radius: 14rpx;
-  padding: 20rpx;
+  min-height: 140rpx;
+  background: #F0F3F6;
+  border-radius: 24rpx;
+  padding: 24rpx;
   box-sizing: border-box;
-  font-size: 26rpx;
+  font-size: 28rpx;
   line-height: 1.6;
+  color: #111827;
 }
 
 /* ---- 底部 ---- */
 .quiz-footer {
   display: flex;
   gap: 20rpx;
-  padding: 20rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
+  padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
   background: #FFFFFF;
+  border-top: 1px solid #E5E7EB;
   flex-shrink: 0;
 }
 
@@ -262,6 +272,6 @@ page {
 }
 
 .back-btn {
-  margin-top: 32rpx;
+  margin-top: 40rpx;
   width: 320rpx;
 }

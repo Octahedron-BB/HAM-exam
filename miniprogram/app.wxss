@@ -1,31 +1,44 @@
+/* ============================================================
+   全局视觉规范 —— 对齐网页版 styles.css
+   色值 / 圆角 / 边框 / 阴影 / 字号层级均取自原设计系统
+   ============================================================ */
+
 page {
   min-height: 100%;
-  background: #F4F6F6;
-  color: #1F2329;
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  background: #F5F7F9;
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
   font-size: 28rpx;
-  line-height: 1.6;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
 button {
-  border-radius: 16rpx;
+  font-family: inherit;
 }
 
 button::after {
   border: none;
 }
 
-/* ---- 通用容器 ---- */
+/* 等宽数字，对齐原版 --font-mono */
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
 .page-wrap {
-  padding: 24rpx;
+  padding: 24rpx 32rpx 40rpx;
   box-sizing: border-box;
 }
 
+/* ---- 卡片：1px 边框 + 极轻阴影（原版 .card 以边框为主，阴影极淡）---- */
 .card {
   background: #FFFFFF;
-  border-radius: 20rpx;
-  padding: 28rpx;
-  box-shadow: 0 2rpx 12rpx rgba(15, 118, 110, 0.06);
+  border: 1px solid #E5E7EB;
+  border-radius: 32rpx;
+  padding: 36rpx;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.05);
   margin-bottom: 24rpx;
 }
 
@@ -33,20 +46,45 @@ button::after {
 .section-title {
   font-size: 32rpx;
   font-weight: 700;
-  color: #1F2329;
+  color: #111827;
+  line-height: 1.3;
 }
 
 .section-desc {
-  font-size: 24rpx;
-  color: #6B7780;
+  font-size: 26rpx;
+  color: #6B7280;
   margin-top: 6rpx;
+  line-height: 1.5;
 }
 
-.mono {
-  font-variant-numeric: tabular-nums;
+/* ---- 药丸标签 ---- */
+.mono-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: #CCFBF1;
+  color: #0F766E;
+  white-space: nowrap;
 }
 
-/* ---- 主色按钮 ---- */
+/* ---- 徽标 ---- */
+.badge {
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  background: #CCFBF1;
+  color: #0F766E;
+}
+
+.badge-warn {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+/* ---- 主按钮 ---- */
 .btn-primary {
   background: #0F766E;
   color: #FFFFFF;
@@ -55,54 +93,40 @@ button::after {
   height: 88rpx;
   line-height: 88rpx;
   text-align: center;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
+  padding: 0;
 }
 
 .btn-primary[disabled] {
-  background: #B8C6C5;
-  color: #FFFFFF;
-}
-
-.btn-ghost {
-  background: #FFFFFF;
-  color: #0F766E;
-  border: 2rpx solid #0F766E;
-  font-size: 28rpx;
-  height: 76rpx;
-  line-height: 72rpx;
-  text-align: center;
-  border-radius: 16rpx;
-}
-
-.btn-sm {
-  height: 56rpx;
-  line-height: 52rpx;
-  font-size: 24rpx;
-  padding: 0 20rpx;
-}
-
-/* ---- 标签 ---- */
-.pill {
-  display: inline-block;
-  padding: 6rpx 18rpx;
-  border-radius: 999rpx;
-  font-size: 22rpx;
-  background: #E6F2F0;
-  color: #0F766E;
-  font-weight: 600;
-}
-
-.pill-active {
   background: #0F766E;
+  opacity: 0.45;
   color: #FFFFFF;
 }
 
-/* ---- 空状态 ---- */
+/* ---- 次按钮（描边）---- */
+.btn-ghost {
+  background: transparent;
+  color: #4B5563;
+  border: 1px solid #E5E7EB;
+  font-size: 28rpx;
+  font-weight: 600;
+  height: 88rpx;
+  line-height: 86rpx;
+  text-align: center;
+  border-radius: 24rpx;
+  padding: 0;
+}
+
+.btn-ghost[disabled] {
+  opacity: 0.45;
+}
+
 .empty-state {
   text-align: center;
   padding: 60rpx 20rpx;
-  color: #8A959D;
+  color: #6B7280;
   font-size: 26rpx;
+  line-height: 1.7;
 }
 
 .hidden {

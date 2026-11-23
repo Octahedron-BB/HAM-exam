@@ -8,39 +8,43 @@
   </view>
 
   <block wx:else>
-    <!-- 顶部进度 -->
+    <!-- 顶部进度细线（原版 .quiz-progress-bar 3px） -->
+    <view class="progress-line">
+      <view class="progress-fill" style="width: {{progressPercent}}"></view>
+    </view>
+
+    <!-- 顶栏 -->
     <view class="quiz-top">
-      <view class="progress-track">
-        <view class="progress-bar" style="width: {{progressPercent}}"></view>
-      </view>
-      <view class="progress-text mono">{{index + 1}} / {{total}}</view>
+      <view class="quiz-counter mono">{{index + 1}} / {{total}}</view>
       <view class="fav-btn {{isFavorite ? 'fav-active' : ''}}" bindtap="onToggleFavorite">
         {{isFavorite ? '★' : '☆'}}
       </view>
     </view>
 
     <scroll-view scroll-y class="scroll-area">
-      <!-- 题干 -->
+      <!-- 题干 + 选项 + 判分（同一张卡片，与原版结构一致） -->
       <view class="card q-card">
-        <view class="q-meta">
-          <text class="pill">{{q.typeText}}</text>
+        <view class="q-meta-row">
+          <view class="q-badges">
+            <text class="badge">{{q.typeText}}</text>
+            <text wx:if="{{isWrong}}" class="badge badge-warn">错题</text>
+          </view>
           <text class="q-point mono">{{q.point}}</text>
-          <text wx:if="{{isWrong}}" class="pill pill-warn">错题</text>
         </view>
-        <view class="q-text">{{q.text}}</view>
-      </view>
 
-      <!-- 选项 -->
-      <view class="card option-card">
-        <view
-          wx:for="{{options}}"
-          wx:key="key"
-          class="option {{item.state}}"
-          data-key="{{item.key}}"
-          bindtap="onOptionTap"
-        >
-          <view class="option-key">{{item.key}}</view>
-          <view class="option-text">{{item.text}}</view>
+        <view class="q-stem">{{q.text}}</view>
+
+        <view class="q-options">
+          <view
+            wx:for="{{options}}"
+            wx:key="key"
+            class="option-btn {{item.state}}"
+            data-key="{{item.key}}"
+            bindtap="onOptionTap"
+          >
+            <view class="option-key">{{item.key}}</view>
+            <view class="option-text">{{item.text}}</view>
+          </view>
         </view>
 
         <button
@@ -49,19 +53,21 @@
           bindtap="onSubmitMulti"
           disabled="{{!canSubmitMulti}}"
         >确认提交多选答案</button>
-      </view>
 
-      <!-- 判分反馈 -->
-      <view wx:if="{{submitted}}" class="feedback {{isMemorize ? 'feedback-memorize' : (isCorrect ? 'feedback-correct' : 'feedback-wrong')}}">
-        <block wx:if="{{isMemorize}}">
-          <text>背题模式 · 正确答案：</text><text class="mono feedback-answer">{{answerText}}</text>
-        </block>
-        <block wx:elif="{{isCorrect}}">
-          <text>回答正确！</text><text class="mono feedback-answer">答案：{{answerText}}</text>
-        </block>
-        <block wx:else>
-          <text>回答错误（你选了 {{selectedText}}）</text><text class="mono feedback-answer">正确答案：{{answerText}}</text>
-        </block>
+        <view
+          wx:if="{{submitted}}"
+          class="q-feedback {{isMemorize ? 'is-memorize' : (isCorrect ? 'is-correct' : 'is-wrong')}}"
+        >
+          <block wx:if="{{isMemorize}}">
+            <text>背题模式 · 答案</text><text class="mono feedback-answer">{{answerText}}</text>
+          </block>
+          <block wx:elif="{{isCorrect}}">
+            <text>回答正确</text><text class="mono feedback-answer">{{answerText}}</text>
+          </block>
+          <block wx:else>
+            <text>回答错误（你选了 {{selectedText}}）</text><text class="mono feedback-answer">{{answerText}}</text>
+          </block>
+        </view>
       </view>
 
       <!-- 笔记 -->

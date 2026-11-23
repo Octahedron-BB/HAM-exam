@@ -137,7 +137,7 @@ for page in pages:
 # ---------------------------------------------------------------- 6. WXSS
 def check_wxss(path, label):
     if not os.path.isfile(path):
-        return
+        return ''
     with open(path, encoding='utf-8') as f:
         css = f.read()
     css_nc = re.sub(r'/\*.*?\*/', '', css, flags=re.S)
@@ -150,15 +150,57 @@ def check_wxss(path, label):
     # 本地图片禁止用 background-image
     if re.search(r'background(?:-image)?\s*:[^;]*url\(', css_nc):
         warn('%s 使用了 url() 背景图，小程序建议改用 <image>' % label)
-    # rpx 之外用了 px 的地方提示（不强制）
-    px = re.findall(r':[^;{}]*?\b(\d+)px\b', css_nc)
-    if px:
-        warn('%s 有 %d 处 px 单位（建议 rpx）' % (label, len(px)))
+    # rpx 之外用了 px 的地方提示。细边框/阴影用 px 是刻意的（1rpx 会渲染成半像素发虚），
+    # 因此只提示非 border / box-shadow / outline 属性上的 px。
+    px_hits = []
+    for line in css_nc.split('\n'):
+        m = re.match(r'\s*([a-zA-Z-]+)\s*:\s*(.+)', line)
+        if not m:
+            continue
+        prop, val = m.group(1), m.group(2)
+        if prop.startswith(('border', 'box-shadow', 'outline', 'text-shadow')):
+            continue
+        if re.search(r'\b\d+px\b', val):
+            px_hits.append('%s: %s' % (prop, val.strip()))
+    if px_hits:
+        warn('%s 有 %d 处非边框类 px 单位（建议 rpx）: %s'
+             % (label, len(px_hits), '; '.join(px_hits[:3])))
+    return css_nc
 
 
-check_wxss(os.path.join(ROOT, 'app.wxss'), 'app.wxss')
+def defined_classes(css_text):
+    """取出样式里定义过的类名"""
+    return set(re.findall(r'\.([A-Za-z_][\w-]*)', css_text))
+
+
+# 收集全局样式类，供下面的 WXML 类名检查使用
+global_css = check_wxss(os.path.join(ROOT, 'app.wxss'), 'app.wxss') or ''
+global_classes = defined_classes(global_css)
+page_css = {}
 for page in pages:
-    check_wxss(os.path.join(ROOT, page + '.wxss'), page + '.wxss')
+    css = check_wxss(os.path.join(ROOT, page + '.wxss'), page + '.wxss') or ''
+    page_css[page] = defined_classes(css)
+
+# ---------------------------------------------------------------- 7.5 WXML 类名必须有样式
+# 类名写错不会报错，只会静默失效，是最难发现的一类 UI 问题
+for page in pages:
+    wxml_path = os.path.join(ROOT, page + '.wxml')
+    if not os.path.isfile(wxml_path):
+        continue
+    with open(wxml_path, encoding='utf-8') as f:
+        wxml = f.read()
+    used = set()
+    for attr in re.findall(r'class="([^"]*)"', wxml):
+        # {{ ... }} 里三元的分支类名（如 'level-card-active'）也算使用
+        for expr in re.findall(r'\{\{(.*?)\}\}', attr, re.S):
+            for lit in re.findall(r"'([^']*)'", expr):
+                used.update(lit.split())
+        plain = re.sub(r'\{\{.*?\}\}', '', attr, flags=re.S)
+        used.update(plain.split())
+    known = global_classes | page_css.get(page, set())
+    missing = sorted(c for c in used if c and c not in known)
+    if missing:
+        err('%s.wxml 使用了未定义的类名: %s' % (page, ', '.join(missing)))
 
 # ---------------------------------------------------------------- 8. 体积
 total = 0
