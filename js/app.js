@@ -1123,56 +1123,9 @@
     $('#q-note-input').value = Store.getNote(q.id);
     $('#note-saved-badge').classList.add('hidden');
 
-    // Comments (Yikaobang style: show only after submitting answer or in memorize mode)
-    const commentsSection = $('#q-comments-section');
-    if (!isExam && (isMemorize || isGraded)) {
-      commentsSection.classList.remove('hidden');
-      renderComments(q.id);
-    } else {
-      commentsSection.classList.add('hidden');
-    }
-
     // Prev / Next buttons
     $('#quiz-prev-btn').disabled = s.cursor === 0;
     $('#quiz-next-btn').textContent = s.cursor === s.list.length - 1 ? (isExam ? '交卷' : '完成') : '下一题';
-  }
-
-  function renderComments(qid) {
-    const comments = Store.listComments(qid);
-    $('#comment-count').textContent = comments.length;
-    $('#comment-nick-label').textContent = Store.settings.nickname || '无线电爱好者';
-
-    const listEl = $('#q-comment-list');
-    if (!comments.length) {
-      listEl.innerHTML = '<div class="empty-state" style="padding:18px 8px;">暂无讨论，来发表第一条记忆口诀或解析吧！</div>';
-      return;
-    }
-
-    listEl.innerHTML = comments.map((c) => {
-      const liked = Store.isCommentLiked(c.id);
-      const initial = (c.author || '友').slice(0, 1).toUpperCase();
-      const timeStr = new Date(c.createdAt).toLocaleString('zh-CN', {
-        month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-      });
-      return `
-        <div class="comment-item">
-          <div class="comment-item-top">
-            <span class="comment-author">
-              <span class="comment-avatar">${escapeHtml(initial)}</span>
-              <span>${escapeHtml(c.author)}</span>
-            </span>
-            <span class="comment-time">${timeStr}</span>
-          </div>
-          <div class="comment-body">${escapeHtml(c.text)}</div>
-          <div class="comment-item-foot">
-            ${c.isMine ? `<button class="btn btn-sm btn-ghost" data-del-comment="${c.id}">删除</button>` : ''}
-            <button class="comment-like-btn ${liked ? 'liked' : ''}" data-like-comment="${c.id}">
-              👍 <span>${c.likes || 0}</span>
-            </button>
-          </div>
-        </div>
-      `;
-    }).join('');
   }
 
   function submitChoice(selectedStr) {
@@ -1278,65 +1231,6 @@
 
     $('#note-save-btn').addEventListener('click', () => saveNoteNow(true));
     $('#q-note-input').addEventListener('blur', () => saveNoteNow(false));
-
-    // Comments
-    $('#comment-post-btn').addEventListener('click', () => {
-      const q = getCurrentQuestion();
-      if (!q) return;
-      const input = $('#q-comment-input');
-      const item = Store.addComment(q.id, input.value);
-      if (!item) {
-        showToast('请输入评论内容');
-        return;
-      }
-      input.value = '';
-      renderComments(q.id);
-      showToast('评论已发表');
-    });
-
-    $('#q-comment-list').addEventListener('click', (e) => {
-      const q = getCurrentQuestion();
-      if (!q) return;
-      const likeBtn = e.target.closest('[data-like-comment]');
-      if (likeBtn) {
-        Store.toggleCommentLike(q.id, likeBtn.dataset.likeComment);
-        renderComments(q.id);
-        return;
-      }
-      const delBtn = e.target.closest('[data-del-comment]');
-      if (delBtn) {
-        Store.deleteComment(q.id, delBtn.dataset.delComment);
-        renderComments(q.id);
-        showToast('已删除评论');
-      }
-    });
-
-    $('#comment-nick-btn').addEventListener('click', () => {
-      const btn = $('#comment-nick-btn');
-      if (btn.dataset.editing === '1') return;
-      btn.dataset.editing = '1';
-      const cur = Store.settings.nickname || '无线电爱好者';
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'text-input';
-      input.style.cssText = 'min-height:32px;padding:4px 10px;width:150px;font-size:13px;';
-      input.value = cur;
-      input.placeholder = '输入呼号或昵称';
-      btn.replaceWith(input);
-      input.focus();
-      const finishNick = () => {
-        const val = input.value.trim() || '无线电爱好者';
-        Store.saveSettings({ nickname: val });
-        input.replaceWith(btn);
-        btn.dataset.editing = '0';
-        $('#comment-nick-label').textContent = val;
-        showToast(`已设置昵称：${val}`);
-      };
-      input.addEventListener('blur', finishNick);
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') input.blur();
-      });
-    });
 
     // Navigation
     $('#quiz-prev-btn').addEventListener('click', () => {

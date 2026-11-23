@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0F766E" />
   <meta name="description" content="中国业余无线电台操作技术能力验证考试刷题系统：支持A/B/C类题库顺序随机刷题、单选多选题型、背题模式、考点专项、错题集、收藏集与随手笔记。" />
   <title>CQ · 业余无线电刷题系统</title>
-  <link rel="stylesheet" href="styles.css?v=20261123c" />
+  <link rel="stylesheet" href="styles.css?v=20261123f" />
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -449,26 +449,6 @@
           <textarea id="q-note-input" class="note-textarea" rows="3" placeholder="记录这道题的记忆口诀、易错点或法规条文...（支持失去焦点自动保存）"></textarea>
         </section>
 
-        <!-- Comments Section (Shown after submitting answer or in memorize mode) -->
-        <section id="q-comments-section" class="comment-card card hidden">
-          <div class="comment-header">
-            <div class="note-title-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              <span>题友讨论 (<span id="comment-count">0</span>)</span>
-            </div>
-            <button id="comment-nick-btn" class="btn btn-sm btn-ghost" title="设置呼号或昵称">
-              呼号/昵称：<span id="comment-nick-label">无线电爱好者</span>
-            </button>
-          </div>
-          <div class="comment-compose">
-            <textarea id="q-comment-input" class="note-textarea" rows="2" placeholder="分享你的记忆口诀、解题思路或易错提醒..."></textarea>
-            <div class="comment-compose-actions">
-              <span class="section-desc">提示：小程序上线后将接入云开发实现全网题友互通</span>
-              <button id="comment-post-btn" class="btn btn-sm btn-primary">发表评论</button>
-            </div>
-          </div>
-          <div id="q-comment-list" class="comment-list"></div>
-        </section>
       </main>
 
       <footer class="quiz-footer">
@@ -533,8 +513,8 @@
     <div id="toast" class="toast hidden"></div>
   </div>
 
-  <script src="js/storage.js?v=20261123d"></script>
-  <script src="js/engine.js?v=20261123d"></script>
-  <script src="js/app.js?v=20261123e"></script>
+  <script src="js/storage.js?v=20261123f"></script>
+  <script src="js/engine.js?v=20261123f"></script>
+  <script src="js/app.js?v=20261123f"></script>
 </body>
 </html>
