@@ -79,13 +79,15 @@
   async function init() {
     applyTheme();
     try {
-      const [qRes, sRes] = await Promise.all([
+      const [qRes, sRes, eRes] = await Promise.all([
         fetch('data/questions.json'),
-        fetch('data/syllabus.json')
+        fetch('data/syllabus.json'),
+        fetch('data/explanations.json')
       ]);
       if (!qRes.ok || !sRes.ok) throw new Error('题库加载失败');
       state.questions = await qRes.json();
       state.syllabus = await sRes.json();
+      state.explanations = eRes.ok ? await eRes.json() : {};
       state.questions.forEach((q) => {
         state.questionMap[q.id] = q;
       });
@@ -1128,6 +1130,18 @@
     // Note
     $('#q-note-input').value = Store.getNote(q.id);
     $('#note-saved-badge').classList.add('hidden');
+
+    // Regulation & Syllabus Explanation
+    const lawSection = $('#q-law-section');
+    const exp = state.explanations && state.explanations[q.id];
+    if (!isExam && (isMemorize || isGraded) && exp) {
+      lawSection.classList.remove('hidden');
+      $('#q-law-point').textContent = exp.p || '';
+      $('#q-law-ref').textContent = `关联依据：${exp.r || ''}`;
+      $('#q-law-body').textContent = exp.e || '';
+    } else {
+      lawSection.classList.add('hidden');
+    }
 
     // Prev / Next buttons
     $('#quiz-prev-btn').disabled = s.cursor === 0;

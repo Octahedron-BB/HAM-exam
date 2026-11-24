@@ -1648,3 +1648,40 @@ code {
   background: var(--accent-soft);
 }
 
+/* --- Regulation & Syllabus Explanation Card --- */
+.law-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.law-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.law-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.law-ref-box {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.law-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+

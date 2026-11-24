@@ -46,6 +46,7 @@ Page({
     selectedText: '',
     canSubmitMulti: false,
     noteText: '',
+    explanation: null,
     isFavorite: false,
     isWrong: false,
     showSheet: false,
@@ -100,6 +101,7 @@ Page({
     try {
       const bank = QBank.load();
       this.map = QBank.buildIndex(bank.questions);
+      this._explanations = require('../../data/explanations');
       this.list = this.buildList(bank.questions);
     } catch (err) {
       console.error('[quiz] 题库加载失败', err);
@@ -260,6 +262,7 @@ Page({
     }
 
     const noteText = store.getNote(q.id);
+    const explanation = (this._explanations && this._explanations[q.id]) || null;
 
     this.setData({
       index,
@@ -280,6 +283,7 @@ Page({
       answerText,
       canSubmitMulti: false,
       noteText,
+      explanation,
       isFavorite: store.isFavorite(q.id),
       isWrong: store.isWrong(q.id),
       scrollTop: 0,

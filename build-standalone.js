@@ -18,31 +18,39 @@ html = html.replace(
 // 2) 数据内联（放在脚本前），并给 init 加读取分支
 const questions = rd('data/questions.json');
 const syllabus = rd('data/syllabus.json');
+const explanations = rd('data/explanations.json');
 const dataTags =
   `<script id="inline-questions-json" type="application/json">${questions}</script>\n` +
-  `  <script id="inline-syllabus-json" type="application/json">${syllabus}</script>\n\n  `;
+  `  <script id="inline-syllabus-json" type="application/json">${syllabus}</script>\n` +
+  `  <script id="inline-explanations-json" type="application/json">${explanations}</script>\n\n  `;
 
-const SRC_FETCH = `      const [qRes, sRes] = await Promise.all([
+const SRC_FETCH = `      const [qRes, sRes, eRes] = await Promise.all([
         fetch('data/questions.json'),
-        fetch('data/syllabus.json')
+        fetch('data/syllabus.json'),
+        fetch('data/explanations.json')
       ]);
       if (!qRes.ok || !sRes.ok) throw new Error('题库加载失败');
       state.questions = await qRes.json();
-      state.syllabus = await sRes.json();`;
+      state.syllabus = await sRes.json();
+      state.explanations = eRes.ok ? await eRes.json() : {};`;
 
 const INLINE_READ = `      const inlineQ = document.getElementById('inline-questions-json');
       const inlineS = document.getElementById('inline-syllabus-json');
+      const inlineE = document.getElementById('inline-explanations-json');
       if (inlineQ && inlineS) {
         state.questions = JSON.parse(inlineQ.textContent);
         state.syllabus = JSON.parse(inlineS.textContent);
+        state.explanations = inlineE ? JSON.parse(inlineE.textContent) : {};
       } else {
-        const [qRes, sRes] = await Promise.all([
+        const [qRes, sRes, eRes] = await Promise.all([
           fetch('data/questions.json'),
-          fetch('data/syllabus.json')
+          fetch('data/syllabus.json'),
+          fetch('data/explanations.json')
         ]);
         if (!qRes.ok || !sRes.ok) throw new Error('题库加载失败');
         state.questions = await qRes.json();
         state.syllabus = await sRes.json();
+        state.explanations = eRes.ok ? await eRes.json() : {};
       }`;
 
 // 3) JS 内联

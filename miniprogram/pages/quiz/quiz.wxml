@@ -113,6 +113,19 @@
             bindblur="onNoteBlur"
           />
         </view>
+
+        <!-- 法规依据与考点解析（作答后或背题模式显示） -->
+        <view wx:if="{{!isExam && submitted && explanation}}" class="card law-card">
+          <view class="law-head">
+            <text class="law-title">法规依据与考点解析</text>
+            <text class="law-point mono">{{explanation.p}}</text>
+          </view>
+          <view class="law-ref-box">
+            <text class="law-ref-label">关联依据：</text>
+            <text class="law-ref-text">{{explanation.r}}</text>
+          </view>
+          <view class="law-body">{{explanation.e}}</view>
+        </view>
       </view>
     </scroll-view>
 
