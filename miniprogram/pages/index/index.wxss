@@ -67,13 +67,12 @@
 
 /* ---- 级别选择 ---- */
 .level-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18rpx;
 }
 
 .level-card {
-  width: calc(50% - 9rpx);
   box-sizing: border-box;
   padding: 24rpx;
   border-radius: 24rpx;
@@ -243,13 +242,12 @@
 
 /* ---- 统计 2×2 ---- */
 .stats-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18rpx;
 }
 
 .stat-box {
-  width: calc(50% - 9rpx);
   box-sizing: border-box;
   padding: 24rpx 16rpx;
   border-radius: 24rpx;

@@ -438,14 +438,13 @@ page {
 }
 
 .sheet-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14rpx;
   padding-bottom: 12rpx;
 }
 
 .sheet-num {
-  width: calc((100% - 70rpx) / 6);
   height: 76rpx;
   line-height: 74rpx;
   text-align: center;

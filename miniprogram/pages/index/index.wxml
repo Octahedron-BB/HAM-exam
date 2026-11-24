@@ -171,5 +171,15 @@
     </view>
   </view>
 
+  <!-- 纯本地数据备份 -->
+  <view class="card">
+    <view class="section-title">本机数据备份</view>
+    <view class="section-desc">数据均保存在手机本机，换手机时可通过剪贴板导出/导入</view>
+    <view class="cta-row" style="margin-top: 20rpx;">
+      <button class="btn-secondary cta-btn" bindtap="onExportBackup">复制备份数据</button>
+      <button class="btn-ghost cta-btn" bindtap="onImportBackup">从剪贴板恢复</button>
+    </view>
+  </view>
+
   <view class="footer-tip">HAM刷题 · 业余无线电操作技术能力刷题系统</view>
 </view>

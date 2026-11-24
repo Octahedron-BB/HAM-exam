@@ -283,6 +283,42 @@ class ExamStore {
     driver.set(scopedKey('notes'), this.notes);
   }
 
+  exportAll() {
+    return JSON.stringify({
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: this.settings,
+      wrongBook: this.wrongBook,
+      favorites: this.favorites,
+      notes: this.notes,
+      answered: this.answered,
+      sessions: this.sessions,
+      examHistory: this.examHistory
+    });
+  }
+
+  importAll(jsonStr) {
+    const data = JSON.parse(jsonStr);
+    if (!data || typeof data !== 'object' || !data.version) {
+      throw new Error('无效的备份内容');
+    }
+    if (data.settings) this.settings = Object.assign({}, DEFAULT_SETTINGS, data.settings);
+    if (data.wrongBook) this.wrongBook = data.wrongBook;
+    if (data.favorites) this.favorites = data.favorites;
+    if (data.notes) this.notes = data.notes;
+    if (data.answered) this.answered = data.answered;
+    if (data.sessions) this.sessions = data.sessions;
+    if (data.examHistory) this.examHistory = data.examHistory;
+
+    driver.set(scopedKey('settings'), this.settings);
+    driver.set(scopedKey('wrong_book'), this.wrongBook);
+    driver.set(scopedKey('favorites'), this.favorites);
+    driver.set(scopedKey('notes'), this.notes);
+    driver.set(scopedKey('answered'), this.answered);
+    driver.set(scopedKey('sessions'), this.sessions);
+    driver.set(scopedKey('exam_history'), this.examHistory);
+  }
+
   resetProgress() {
     this.answered = {};
     this.sessions = {};

@@ -134,6 +134,42 @@ Page({
     store.saveSettings({ autoRemoveWrong });
   },
 
+  onExportBackup() {
+    const data = store.exportAll();
+    wx.setClipboardData({
+      data,
+      success: () => {
+        wx.showToast({ title: '备份已复制，可发到文件传输助手保存', icon: 'none', duration: 2200 });
+      }
+    });
+  },
+
+  onImportBackup() {
+    wx.getClipboardData({
+      success: (res) => {
+        const text = (res.data || '').trim();
+        if (!text) {
+          wx.showToast({ title: '剪贴板为空，请先复制备份文本', icon: 'none' });
+          return;
+        }
+        wx.showModal({
+          title: '恢复学习记录',
+          content: '将用剪贴板中的备份覆盖当前本机进度，确定继续吗？',
+          success: (modalRes) => {
+            if (!modalRes.confirm) return;
+            try {
+              store.importAll(text);
+              this.refresh();
+              wx.showToast({ title: '恢复成功', icon: 'none' });
+            } catch (err) {
+              wx.showToast({ title: '剪贴板内容不是有效的备份格式', icon: 'none' });
+            }
+          }
+        });
+      }
+    });
+  },
+
   onLoginTap() {
     wx.navigateTo({ url: '/pages/login/login?edit=1' });
   }
